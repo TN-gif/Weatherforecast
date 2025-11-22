@@ -1,0 +1,112 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-11-12T17:30:00.000Z",
+  "resources": {
+    "videos": {
+      "sunny_day": {
+        "path": "rawfile/weather/sunny_day.mp4",
+        "resolution": "1080p",
+        "duration": 12,
+        "size": "4.2MB",
+        "codec": "H.264",
+        "bitrate": "4.8Mbps"
+      },
+      "sunny_night": {
+        "path": "rawfile/weather/sunny_night.mp4",
+        "resolution": "1080p", 
+        "duration": 15,
+        "size": "5.1MB",
+        "codec": "H.264",
+        "bitrate": "4.5Mbps"
+      },
+      "rainy_day": {
+        "path": "rawfile/weather/rainy_day.mp4",
+        "resolution": "1080p",
+        "duration": 10,
+        "size": "3.8MB",
+        "codec": "H.264",
+        "bitrate": "5.0Mbps"
+      },
+      "rainy_night": {
+        "path": "rawfile/weather/rainy_night.mp4",
+        "resolution": "1080p",
+        "duration": 13,
+        "size": "4.5MB",
+        "codec": "H.264",
+        "bitrate": "4.6Mbps"
+      },
+      "snow_day": {
+        "path": "rawfile/weather/snow_day.mp4",
+        "resolution": "1080p",
+        "duration": 14,
+        "size": "4.8MB",
+        "codec": "H.264",
+        "bitrate": "4.7Mbps"
+      },
+      "snow_night": {
+        "path": "rawfile/weather/snow_night.mp4",
+        "resolution": "1080p",
+        "duration": 11,
+        "size": "4.0MB",
+        "codec": "H.264",
+        "bitrate": "4.9Mbps"
+      }
+    },
+    "webp_animations": {
+      "sunny": {
+        "path": "rawfile/weather/sunny.webp",
+        "frames": 60,
+        "duration": 2000,
+        "size": "1.2MB",
+        "dimensions": "800x600"
+      },
+      "rainy": {
+        "path": "rawfile/weather/rainy.webp", 
+        "frames": 45,
+        "duration": 1500,
+        "size": "1.5MB",
+        "dimensions": "800x600"
+      },
+      "snow": {
+        "path": "rawfile/weather/snow.webp",
+        "frames": 50,
+        "duration": 1800,
+        "size": "1.3MB",
+        "dimensions": "800x600"
+      },
+      "night": {
+        "path": "rawfile/weather/night.webp",
+        "frames": 40,
+        "duration": 2500,
+        "size": "1.1MB",
+        "dimensions": "800x600"
+      }
+    },
+    "lottie_animations": {
+      "sun": {
+        "path": "rawfile/lottie/sun.json",
+        "duration": 2000,
+        "size": "45KB",
+        "dimensions": "100x100"
+      },
+      "rain": {
+        "path": "rawfile/lottie/rain.json",
+        "duration": 1500,
+        "size": "38KB",
+        "dimensions": "80x100"
+      },
+      "snow": {
+        "path": "rawfile/lottie/snow.json",
+        "duration": 2200,
+        "size": "42KB",
+        "dimensions": "90x90"
+      },
+      "moon": {
+        "path": "rawfile/lottie/moon.json",
+        "duration": 3000,
+        "size": "35KB",
+        "dimensions": "80x80"
+      }
+    }
+  }
+}

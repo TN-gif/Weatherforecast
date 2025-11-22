@@ -1,0 +1,44 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "label"
+    },
+    {
+      "name": "permission_internet_reason",
+      "value": "需要访问网络以获取实时天气数据"
+    },
+    {
+      "name": "permission_network_info_reason",
+      "value": "需要检测网络连通性以提供稳定体验"
+    },
+    {
+      "name": "permission_location_reason",
+      "value": "用于自动获取当前位置天气信息"
+    },
+    {
+      "name": "permission_approx_location_reason",
+      "value": "在无法获取精确定位时使用粗略位置信息"
+    },
+    {
+      "name": "permission_location_background_reason",
+      "value": "需要后台定位权限以提供准确的天气信息"
+    },
+    {
+      "name": "permission_accelerometer_reason",
+      "value": "需要加速度传感器权限以支持摇一摇刷新功能"
+    },
+    {
+      "name": "permission_vibrate_reason",
+      "value": "需要振动权限以支持触觉反馈功能"
+    }
+  ]
+}
