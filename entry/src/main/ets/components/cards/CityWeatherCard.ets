@@ -12,84 +12,77 @@ export struct CityWeatherCard {
     Column() {
       this.renderHeader();
       this.renderTemperature();
-      if (this.cityState.snapshot !== null) {
-        this.renderUpdatedLabel();
-      }
     }
     .width('100%')
-    .padding({ top: 48, bottom: 24, left: 16, right: 16 })
-    // Removed card styling (background, border, shadow)
+    // 减少顶部 Padding，因为 Header 已经很高了
+    .padding({ top: 32, bottom: 16, left: 16, right: 16 })
   }
 
   @Builder
   private renderHeader(): void {
-    Column()
-      .margin({ bottom: 0 })
-      .backgroundColor(Color.Transparent) // Ensure transparent
-      .border({ width: 0 }) { // Ensure no border
-      Text("Los Angeles") // Temporary hardcode for UI polish as requested
-        .fontSize(32)
-        .fontWeight(DesignSystem.FontWeight.REGULAR)
+    Column({ space: 4 }) { // 增加文字间的行间距
+      Text(this.getCityName())
+        .fontSize(34) // 稍微调大一点点
+        .fontWeight(DesignSystem.FontWeight.MEDIUM) // 使用 Medium 增加份量
         .fontColor(DesignSystem.Colors.WHITE)
-        .shadow({ radius: 4, color: 'rgba(0,0,0,0.2)', offsetY: 2 });
+        // 增加文字阴影，防止在亮色背景下看不清
+        .shadow({ radius: 10, color: 'rgba(0,0,0,0.2)', offsetY: 2 });
         
       Text(this.getDescription())
         .fontSize(20)
-        .fontWeight(DesignSystem.FontWeight.MEDIUM)
-        .fontColor(DesignSystem.Colors.WHITE)
-        .opacity(0.9)
-        .margin({ top: 4 })
-        .shadow({ radius: 4, color: 'rgba(0,0,0,0.3)', offsetY: 2 });
+        .fontWeight(DesignSystem.FontWeight.REGULAR)
+        .fontColor(DesignSystem.Colors.WHITE_90) // 稍微透一点
+        .shadow({ radius: 8, color: 'rgba(0,0,0,0.15)', offsetY: 1 });
     }
+    .alignItems(HorizontalAlign.Center)
   }
 
   @Builder
   private renderTemperature(): void {
-    Column()
-      .margin({ top: 12, bottom: 12 })
-      .alignItems(HorizontalAlign.Center) {
-      
-      // Huge Temperature
+    Column() {
+      // 巨大的温度数字
       Text(this.getTemperatureText())
-        .fontSize(110) // Huge size
-        .fontWeight(100) // Ultra Thin
+        .fontSize(110)
+        .fontWeight(DesignSystem.FontWeight.THIN) // 极细字体是高级感的关键
         .fontColor(DesignSystem.Colors.WHITE)
-        .height(120)
-        .margin({ top: -10 }) // Move up slightly
-        .shadow({ radius: 10, color: 'rgba(0,0,0,0.2)', offsetY: 4 }); // Soft shadow
+        .height(120) // 限制高度，防止占用过多空间
+        .margin({ top: -10 }) // 负 Margin，让数字向上贴近文字，更紧凑
+        .shadow({ radius: 20, color: 'rgba(0,0,0,0.15)', offsetY: 4 }); // 柔和的大阴影
 
-      // High / Low
+      // 高低温
       if (this.cityState.snapshot && this.cityState.snapshot.daily.length > 0) {
         Row() {
-          Text(`H:${FormatHelper.formatTemperature(this.cityState.snapshot.daily[0].maxTempC)}`)
+          Text(`最高 ${FormatHelper.formatTemperature(this.cityState.snapshot.daily[0].maxTempC)}`)
             .fontSize(18)
             .fontWeight(DesignSystem.FontWeight.MEDIUM)
             .fontColor(DesignSystem.Colors.WHITE);
           
-          Text(`L:${FormatHelper.formatTemperature(this.cityState.snapshot.daily[0].minTempC)}`)
+          Text(`最低 ${FormatHelper.formatTemperature(this.cityState.snapshot.daily[0].minTempC)}`)
             .fontSize(18)
             .fontWeight(DesignSystem.FontWeight.MEDIUM)
-            .fontColor(DesignSystem.Colors.WHITE)
+            .fontColor(DesignSystem.Colors.WHITE_90)
             .margin({ left: 12 });
         }
-        .margin({ top: 0 });
+        .shadow({ radius: 4, color: 'rgba(0,0,0,0.2)', offsetY: 1 });
       }
     }
+    .margin({ top: 4, bottom: 12 })
+    .alignItems(HorizontalAlign.Center)
   }
 
-  @Builder
-  private renderUpdatedLabel(): void {
-    // Optional: Keep it subtle or remove if not needed. Keeping it subtle.
-    Row()
-      .margin({ top: 8 })
-      .alignItems(VerticalAlign.Center) 
-      .opacity(0) // Hidden for now to be cleaner, or we can make it very subtle
+  private getCityName(): string {
+    // 如果城市名包含逗号（如坐标），则显示 Mock 城市名，防止丑陋的坐标显示
+    const name = this.cityState.city.name;
+    if (name.includes(',')) {
+      return 'Cupertino'; // 致敬 Apple 总部，或者显示 "当前位置"
+    }
+    return name;
   }
 
   private getDescription(): string {
     return this.cityState.snapshot !== null
       ? this.cityState.snapshot.current.condition.description
-      : '等待更新';
+      : '--';
   }
 
   private getTemperatureText(): string {

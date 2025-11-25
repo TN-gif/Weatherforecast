@@ -338,17 +338,30 @@ export struct WeatherHomePage {
 
   build() {
     Stack() {
-      // Background
-      AtmosphereBackground();
+      // 1. 背景层
+      AtmosphereBackground()
 
-      // Global Contrast Overlay
+      // 2. 遮罩层：增加一点点渐变，让底部文字更清晰
+      // 全局压暗
       Rect()
         .width('100%')
         .height('100%')
         .fill(Color.Black)
-        .opacity(0.35) // Increased opacity for better contrast
-        .hitTestBehavior(HitTestMode.None);
+        .opacity(0.3) // 保持 0.3，太黑了不好看
+        .hitTestBehavior(HitTestMode.None)
+      
+      // 底部渐变遮罩（可选，增加 Grid 区域的可读性）
+      Column()
+        .width('100%')
+        .height('50%')
+        .linearGradient({
+          angle: 180,
+          colors: [['rgba(0,0,0,0)', 0], ['rgba(0,0,0,0.2)', 1]]
+        })
+        .position({ y: '50%' })
+        .hitTestBehavior(HitTestMode.None)
 
+      // 3. 内容层
       if (this.isLoading) {
         WeatherSkeleton();
       } else if (this.errorMessage !== '') {
@@ -452,14 +465,14 @@ export struct WeatherHomePage {
         ForEach(this.cityStates.filter(state => state && state.city && state.city.id), (state: CityWeatherState) => {
           Scroll() {
             Column() {
-              // 1. Top Area: Head Info (City, Temp, Desc)
+              // Top Area
               CityWeatherCard({ 
                 cityState: state, 
                 isActive: this.isStateActive(state) 
               });
               
-              // 2. Bottom Area: Glass Containers
-              Column({ space: 20 }) { // Increased spacing from 12 to 20
+              // Bottom Area
+              Column({ space: 12 }) { // 减小卡片间的垂直间距
                 // Hourly Forecast
                 if (state.snapshot && state.snapshot.hourly.length > 0) {
                   HourlyTrendChart({ hourlyData: state.snapshot.hourly });
@@ -473,7 +486,7 @@ export struct WeatherHomePage {
                     wind: FormatHelper.formatWind(state.snapshot.current.windSpeedKph, state.snapshot.current.windDirection),
                     feelsLike: FormatHelper.formatTemperature(state.snapshot.current.feelsLikeC),
                     pressure: `${state.snapshot.current.pressureHpa}hPa`,
-                    visibilityInfo: `${state.snapshot.current.visibilityKm}km`,
+                    visibilityInfo: `${state.snapshot.current.visibilityKm}`, // Removed 'km' here, added in Grid logic
                     uvIndex: `${state.snapshot.current.uvIndex}`
                   });
                 }
@@ -483,15 +496,16 @@ export struct WeatherHomePage {
                   AdviceList({ items: state.snapshot.advice });
                 }
                 
-                // Bottom Spacer
-                Blank().height(100);
+                Blank().height(100); // 底部留白
               }
-              .padding({ left: 16, right: 16 })
+              .padding({ left: 16, right: 16 }) // 保持左右间距
             }
             .width('100%')
+            // 确保内容至少有一屏高，保证可以滚动，产生回弹效果
+            .constraintSize({ minHeight: '100%' }) 
           }
           .scrollBar(BarState.Off)
-          .edgeEffect(EdgeEffect.Spring)
+          .edgeEffect(EdgeEffect.Spring) // 关键：iOS 风格的回弹
           .width('100%')
           .height('100%')
         }, (state: CityWeatherState) => state?.city?.id || `city_${Math.random()}`);

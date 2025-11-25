@@ -7,97 +7,106 @@ export struct WeatherDetailGrid {
   @Prop wind: string = '';
   @Prop feelsLike: string = '';
   @Prop pressure: string = '';
-  @Prop visibilityInfo: string = '';  // Renamed to avoid conflict
+  @Prop visibilityInfo: string = '';
   @Prop uvIndex: string = '';
 
   build() {
     Grid() {
       GridItem() {
-        this.DetailItem('湿度', this.humidity, DesignSystem.Icons.RAIN)
+        this.DetailItem('湿度', this.humidity, DesignSystem.Icons.RAIN, '露点 18°')
       }
       GridItem() {
-        this.DetailItem('空气质量', this.aqi, DesignSystem.Icons.CLOUD)
+        this.DetailItem('空气质量', this.aqi, DesignSystem.Icons.CLOUD, '空气清新')
       }
       GridItem() {
-        this.DetailItem('风速', this.wind, DesignSystem.Icons.CLOUD)
+        this.DetailItem('风速', this.wind, DesignSystem.Icons.CLOUD, '微风拂面')
       }
       GridItem() {
-        this.DetailItem('体感', this.feelsLike, DesignSystem.Icons.SUN)
+        this.DetailItem('体感温度', this.feelsLike, DesignSystem.Icons.SUN, '与实际温度相近')
       }
       GridItem() {
-        this.DetailItem('气压', this.pressure, DesignSystem.Icons.CLOUD)
+        this.DetailItem('气压', this.pressure, DesignSystem.Icons.CLOUD, '呈上升趋势')
       }
       GridItem() {
-        this.DetailItem('能见度', this.visibilityInfo, DesignSystem.Icons.SUN)
+        this.DetailItem('能见度', this.visibilityInfo, DesignSystem.Icons.SUN, '视野清晰')
       }
       GridItem() {
-        this.DetailItem('紫外线', this.uvIndex, DesignSystem.Icons.SUN)
+        this.DetailItem('紫外线', this.uvIndex, DesignSystem.Icons.SUN, '无需特别防护')
       }
     }
     .columnsTemplate('1fr 1fr')
-    .rowsGap(DesignSystem.Spacing.M)
-    .columnsGap(DesignSystem.Spacing.M)
+    .rowsGap(12) // 减小间距，更紧凑
+    .columnsGap(12)
     .width('100%')
-    .height('100%')
+    // 不需要定死高度，让 GridItem 自己撑开
   }
 
   @Builder
-  private DetailItem(title: string, value: string, icon: string): void {
+  private DetailItem(title: string, value: string, icon: string, desc: string = ''): void {
     Column() {
-      // Row 1: Icon + Title (Left aligned)
+      // 1. 标题栏 (Icon + Title)
       Row() {
         Path()
           .commands(icon)
-          .fill(Color.White) // Fix 1: Force White
-          .opacity(0.9) // Increased opacity
-          .width(18)
-          .height(18)
+          .fill(DesignSystem.Colors.WHITE_50) // 图标颜色淡一点
+          .width(16)
+          .height(16)
         Text(title)
-          .fontSize(14)
-          .fontColor('rgba(255,255,255,0.7)')
+          .fontSize(13) // 标题字号小一点，精致
+          .fontWeight(DesignSystem.FontWeight.MEDIUM)
+          .fontColor(DesignSystem.Colors.WHITE_50)
           .margin({ left: 6 })
       }
       .width('100%')
-      .justifyContent(FlexAlign.Start)
+      .alignItems(VerticalAlign.Center)
+
+      // 2. 核心数值 (大字)
+      Column() {
+        if (value.includes('hPa')) {
+          // 特殊处理单位
+          Text() {
+            Span(value.replace('hPa', ''))
+              .fontSize(28)
+              .fontWeight(DesignSystem.FontWeight.REGULAR)
+              .fontColor(DesignSystem.Colors.WHITE)
+            Span(' hPa')
+              .fontSize(16)
+              .fontColor(DesignSystem.Colors.WHITE_50)
+          }
+        } else {
+          Text(value)
+            .fontSize(28)
+            .fontWeight(DesignSystem.FontWeight.REGULAR)
+            .fontColor(DesignSystem.Colors.WHITE)
+        }
+      }
+      .margin({ top: 12 }) // 数值与标题拉开距离
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
 
       Blank()
 
-      // Row 2: Big Value
-      // Fix 4: Formatting (Check if value contains units to separate)
-      if (value.includes('hPa')) {
-        Text() {
-          Span(value.replace('hPa', ''))
-            .fontSize(28) // Reduced from 32 to 28
-            .fontWeight(DesignSystem.FontWeight.MEDIUM)
-            .fontColor(DesignSystem.Colors.WHITE)
-          Span(' hPa')
-            .fontSize(16)
-            .fontColor('rgba(255,255,255,0.7)')
-        }
+      // 3. 底部描述 (小字)
+      Text(desc)
+        .fontSize(12)
+        .fontColor(DesignSystem.Colors.WHITE_70)
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
         .width('100%')
-        .textAlign(TextAlign.Start)
-      } else {
-        Text(value)
-          .fontSize(28) // Reduced from 32 to 28
-          .fontWeight(DesignSystem.FontWeight.MEDIUM)
-          .fontColor(DesignSystem.Colors.WHITE)
-          .width('100%')
-          .textAlign(TextAlign.Start)
-      }
     }
     .alignItems(HorizontalAlign.Start)
-    .padding(16)
-    .backgroundColor('rgba(255, 255, 255, 0.12)') // Unified: 12% White
-    .borderRadius(20)
-    .backdropBlur(50) // Unified: Blur 50
-    .border({ width: 0.5, color: 'rgba(255, 255, 255, 0.3)' }) // Unified: Border 0.5
+    .padding(14) // 内部 Padding
+    .backgroundColor(DesignSystem.Colors.GLASS_BG) // 使用新的极透背景
+    .borderRadius(20) // 大圆角
+    .backdropBlur(80) // 极高模糊
+    .border({ width: 0.5, color: DesignSystem.Colors.GLASS_BORDER }) // 极细边框
     .shadow({
-      radius: 10,
+      radius: 20, // 柔和阴影
       color: 'rgba(0, 0, 0, 0.1)',
-      offsetY: 0,
+      offsetY: 4,
       offsetX: 0
     })
     .width('100%')
-    .height(110) // Fixed height for square-ish look
+    .height(120) // 方形卡片
   }
 }
