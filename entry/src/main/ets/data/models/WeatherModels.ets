@@ -92,6 +92,25 @@ export interface AdviceItem {
   icon: string;
   tone: string;
   content: string;
+  priority: number; // 新增：优先级 1-5，1最高
+}
+
+// 天气预警接口
+export interface WeatherAlert {
+  id: string;
+  severity: 'warning' | 'watch' | 'advisory'; // 预警等级
+  title: string; // 预警标题，如"暴雨预警"
+  description: string; // 详细描述
+  startTime: string; // ISO格式时间
+  endTime: string; // ISO格式时间
+  iconResource: Resource; // 预警图标资源
+}
+
+// 降雨预测（分钟级）
+export interface RainForecast {
+  timeMinutes: number; // 未来X分钟
+  probability: number; // 降雨概率 0-100
+  intensity: 'light' | 'moderate' | 'heavy'; // 降雨强度
 }
 
 export interface WeatherSnapshot {
@@ -102,6 +121,8 @@ export interface WeatherSnapshot {
   hourly: HourlyForecast[];
   daily: DailyForecast[];
   advice: AdviceItem[];
+  alerts: WeatherAlert[]; // 新增：天气预警列表
+  rainForecast: RainForecast[]; // 新增：未来60分钟降雨预测
   dataSource: string;
 }
 

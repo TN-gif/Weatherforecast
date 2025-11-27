@@ -156,8 +156,7 @@ export class FeatureChecker {
       const animatedResources: string[] = [
         'rawfile/weather/sunny.webp',
         'rawfile/weather/rainy.webp',
-        'rawfile/weather/snow.webp',
-        'rawfile/weather/night.webp'
+        'rawfile/weather/snow.webp'
       ];
       
       const debugData: LogData = {

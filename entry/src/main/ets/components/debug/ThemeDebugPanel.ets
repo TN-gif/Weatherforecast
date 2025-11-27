@@ -64,9 +64,7 @@ export struct ThemeDebugPanel {
   @Builder
   private renderHeader(): void {
     Row() {
-      Text('🎨')
-        .fontSize(20)
-        .margin({ right: 8 });
+      // 移除装饰性emoji
       
       Text('主题调试')
         .fontSize(16)
@@ -109,8 +107,10 @@ export struct ThemeDebugPanel {
         
         Blank();
         
-        Text(this.isDarkMode ? '🌙' : '☀️')
-          .fontSize(16);
+        Image(this.isDarkMode ? $r('app.media.moon') : $r('app.media.sun'))
+          .width(16)
+          .height(16)
+          .fillColor(Color.White);
       }
       .width('100%');
 

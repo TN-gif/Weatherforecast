@@ -1,4 +1,5 @@
 import { CitySearchService, CitySearchResult } from '../../data/services/CitySearchService';
+import { DesignSystem } from '../../common/theme/DesignSystem';
 
 export interface SearchBarCallbacks {
   onSearch: (keyword: string) => void;
@@ -13,11 +14,11 @@ export struct CitySearchBar {
   @State private searchResults: CitySearchResult[] = [];
   @State private showResults: boolean = false;
   @State private suggestions: string[] = [];
-  
+
   private searchService: CitySearchService = CitySearchService.getInstance();
   private searchTimeoutId: number = -1;
   private readonly debounceDelay: number = 300;
-  
+
   callbacks?: SearchBarCallbacks;
 
   aboutToAppear(): void {
@@ -33,42 +34,36 @@ export struct CitySearchBar {
   build() {
     Column() {
       // 搜索输入框
-      this.buildSearchInput();
-      
+      this.buildSearchInput()
+
       // 搜索结果或建议
       if (this.showResults) {
-        this.buildResultsList();
+        this.buildResultsList()
       }
     }
     .width('100%')
-    .backgroundColor('#FFFFFF')
-    .borderRadius(12)
-    .padding(16)
-    .shadow({
-      radius: 8,
-      color: 'rgba(0,0,0,0.1)',
-      offsetX: 0,
-      offsetY: 2
-    });
   }
 
   @Builder
   private buildSearchInput(): void {
     Row() {
-      Image($r('app.media.startIcon'))
+      Image(DesignSystem.IconResources.SEARCH)
         .width(20)
         .height(20)
-        .fillColor('#666666')
-        .margin({ right: 12 });
+        .fillColor(DesignSystem.Colors.WHITE_70)
+        .margin({ right: 12 })
 
-      TextInput({ 
+      TextInput({
         placeholder: '搜索城市名称...',
-        text: this.searchText 
+        text: this.searchText
       })
         .layoutWeight(1)
         .backgroundColor(Color.Transparent)
         .border({ width: 0 })
         .fontSize(16)
+        .fontColor(DesignSystem.Colors.WHITE)
+        .placeholderColor(DesignSystem.Colors.WHITE_50)
+        .caretColor(DesignSystem.Colors.WHITE)
         .onChange((value: string) => {
           this.searchText = value;
           this.onSearchTextChange(value);
@@ -78,36 +73,37 @@ export struct CitySearchBar {
         })
         .onBlur(() => {
           this.hideResultsWithDelay();
-        });
+        })
 
       if (this.searchText.length > 0) {
         Button() {
-          Image($r('app.media.startIcon'))
+          Image(DesignSystem.IconResources.CLOSE)
             .width(16)
             .height(16)
-            .fillColor('#999999');
+            .fillColor(DesignSystem.Colors.WHITE_70)
         }
         .width(32)
         .height(32)
         .backgroundColor(Color.Transparent)
         .onClick(() => {
           this.clearSearch();
-        });
+        })
       }
 
       if (this.isSearching) {
         LoadingProgress()
           .width(20)
           .height(20)
-          .margin({ left: 8 });
+          .color(DesignSystem.Colors.WHITE)
+          .margin({ left: 8 })
       }
     }
     .width('100%')
     .height(48)
     .padding({ left: 16, right: 16 })
-    .backgroundColor('#F5F5F5')
+    .backgroundColor('rgba(255, 255, 255, 0.12)')
     .borderRadius(24)
-    .alignItems(VerticalAlign.Center);
+    .alignItems(VerticalAlign.Center)
   }
 
   @Builder
@@ -115,54 +111,47 @@ export struct CitySearchBar {
     Column() {
       if (this.searchText.length === 0) {
         // 显示搜索建议
-        this.buildSuggestions();
+        this.buildSuggestions()
       } else if (this.searchResults.length > 0) {
         // 显示搜索结果
-        this.buildSearchResults();
+        this.buildSearchResults()
       } else if (!this.isSearching && this.searchText.length >= 2) {
         // 无结果提示
-        this.buildNoResults();
+        this.buildNoResults()
       }
     }
     .width('100%')
     .margin({ top: 12 })
     .constraintSize({ maxHeight: 300 })
-    .backgroundColor('#FFFFFF')
-    .borderRadius(8)
-    .border({
-      width: 1,
-      color: '#E0E0E0'
-    });
+    .backgroundColor('rgba(255, 255, 255, 0.10)')
+    .backdropBlur(30)
+    .borderRadius(16)
+    .border({ width: 1, color: DesignSystem.COLOR_GLASS_BORDER })
   }
 
   @Builder
   private buildSuggestions(): void {
     Column() {
       Text('搜索建议')
-        .fontSize(14)
-        .fontColor('#666666')
+        .fontSize(13)
+        .fontColor(DesignSystem.Colors.WHITE_70)
         .margin({ bottom: 8 })
-        .alignSelf(ItemAlign.Start);
+        .alignSelf(ItemAlign.Start)
 
       List() {
-        ForEach(this.suggestions.slice(0, 6), (suggestion: string, index: number) => {
+        ForEach(this.suggestions.slice(0, 6), (suggestion: string) => {
           ListItem() {
             Row() {
-              Image($r('app.media.startIcon'))
+              Image(DesignSystem.IconResources.SEARCH)
                 .width(16)
                 .height(16)
-                .fillColor('#999999')
-                .margin({ right: 12 });
+                .fillColor(DesignSystem.Colors.WHITE_50)
+                .margin({ right: 12 })
 
               Text(suggestion)
-                .fontSize(16)
-                .fontColor('#333333')
-                .layoutWeight(1);
-
-              Image($r('app.media.startIcon'))
-                .width(16)
-                .height(16)
-                .fillColor('#CCCCCC');
+                .fontSize(15)
+                .fontColor(DesignSystem.Colors.WHITE)
+                .layoutWeight(1)
             }
             .width('100%')
             .height(44)
@@ -171,46 +160,46 @@ export struct CitySearchBar {
             .onClick(() => {
               this.searchText = suggestion;
               this.performSearch(suggestion);
-            });
+            })
           }
         }, (suggestion: string) => suggestion)
       }
       .divider({
         strokeWidth: 1,
-        color: '#F0F0F0'
-      });
+        color: 'rgba(255, 255, 255, 0.08)'
+      })
     }
     .width('100%')
     .padding(16)
-    .alignItems(HorizontalAlign.Start);
+    .alignItems(HorizontalAlign.Start)
   }
 
   @Builder
   private buildSearchResults(): void {
     List() {
-      ForEach(this.searchResults, (result: CitySearchResult, index: number) => {
+      ForEach(this.searchResults, (result: CitySearchResult) => {
         ListItem() {
           Row() {
             Column() {
               Text(result.name)
                 .fontSize(16)
-                .fontColor('#333333')
-                .fontWeight(FontWeight.Medium)
-                .alignSelf(ItemAlign.Start);
+                .fontColor(DesignSystem.Colors.WHITE)
+                .fontWeight(DesignSystem.FontWeight.MEDIUM)
+                .alignSelf(ItemAlign.Start)
 
               Text(this.formatLocation(result))
-                .fontSize(14)
-                .fontColor('#666666')
+                .fontSize(13)
+                .fontColor(DesignSystem.Colors.WHITE_70)
                 .margin({ top: 2 })
-                .alignSelf(ItemAlign.Start);
+                .alignSelf(ItemAlign.Start)
             }
             .layoutWeight(1)
-            .alignItems(HorizontalAlign.Start);
+            .alignItems(HorizontalAlign.Start)
 
-            Image($r('app.media.startIcon'))
+            Image(DesignSystem.IconResources.ADD)
               .width(20)
               .height(20)
-              .fillColor('#007AFF');
+              .fillColor(DesignSystem.Colors.WHITE)
           }
           .width('100%')
           .height(60)
@@ -218,38 +207,38 @@ export struct CitySearchBar {
           .alignItems(VerticalAlign.Center)
           .onClick(() => {
             this.selectResult(result);
-          });
+          })
         }
       }, (result: CitySearchResult) => result.id)
     }
     .divider({
       strokeWidth: 1,
-      color: '#F0F0F0'
-    });
+      color: 'rgba(255, 255, 255, 0.08)'
+    })
   }
 
   @Builder
   private buildNoResults(): void {
     Column() {
-      Image($r('app.media.startIcon'))
-        .width(48)
-        .height(48)
-        .fillColor('#CCCCCC')
-        .margin({ bottom: 16 });
+      Image(DesignSystem.IconResources.SEARCH)
+        .width(40)
+        .height(40)
+        .fillColor(DesignSystem.Colors.WHITE_50)
+        .margin({ bottom: 12 })
 
       Text('未找到相关城市')
-        .fontSize(16)
-        .fontColor('#666666')
-        .margin({ bottom: 8 });
+        .fontSize(15)
+        .fontColor(DesignSystem.Colors.WHITE)
+        .margin({ bottom: 4 })
 
       Text('请尝试其他关键词')
-        .fontSize(14)
-        .fontColor('#999999');
+        .fontSize(13)
+        .fontColor(DesignSystem.Colors.WHITE_70)
     }
     .width('100%')
     .height(120)
     .justifyContent(FlexAlign.Center)
-    .alignItems(HorizontalAlign.Center);
+    .alignItems(HorizontalAlign.Center)
   }
 
   private onSearchTextChange(value: string): void {

@@ -352,8 +352,7 @@ export class CityManagementTester {
     } catch (error) {
       // 期望抛出异常
       if ((error as Error).message === '应该拒绝无效坐标') {
-        const error = new Error('应该拒绝无效坐标');
-        throw error;
+        throw new Error('应该拒绝无效坐标');
       }
       // 其他异常表示验证正常工作
     }

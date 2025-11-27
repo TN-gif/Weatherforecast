@@ -1,38 +1,63 @@
 import { AdviceItem } from '../../data/models/WeatherModels';
+import { DesignSystem } from '../../common/theme/DesignSystem';
 
 @Component
 export struct AdviceList {
   @Prop items: AdviceItem[] = [];
 
   build() {
-    Column() {
+    // 横向滑动卡片列表
+    List({ space: DesignSystem.SPACING_M }) {
       ForEach(this.items, (item: AdviceItem) => {
-        Row() {
-          Text(item.icon)
-            .fontSize(20)
-            .margin({ right: 8 });
-          Column() {
-            Text(item.tone)
-              .fontSize(12)
-              .fontColor('rgba(255,255,255,0.6)');
-            Text(item.content)
-              .fontSize(16)
-              .fontColor('#FFFFFF')
-              .maxLines(2);
-          }
+        ListItem() {
+          this.renderAdviceCard(item);
         }
-        .padding({ top: 12, bottom: 12, left: 16, right: 16 })
-        .backgroundColor('rgba(255, 255, 255, 0.12)') // Unified: 12% White
-        .backdropBlur(50) // Unified: Blur 50
-        .borderRadius(20)
-        .border({ width: 0.5, color: 'rgba(255, 255, 255, 0.3)' }) // Unified: Border 0.5
-        .shadow({
-          radius: 10,
-          color: 'rgba(0, 0, 0, 0.1)',
-          offsetY: 0,
-          offsetX: 0
-        });
-      }, (item: AdviceItem) => item.id);
+      }, (item: AdviceItem) => item.id)
     }
+    .listDirection(Axis.Horizontal)
+    .scrollBar(BarState.Off)
+    .edgeEffect(EdgeEffect.Spring)
+    .width('100%')
+    .height(100)
+  }
+
+  @Builder
+  private renderAdviceCard(item: AdviceItem): void {
+    Column({ space: DesignSystem.SPACING_S }) {
+      // 图标（居中）
+      Text(item.icon)
+        .fontSize(28)
+        .textAlign(TextAlign.Center);
+
+      // 标题
+      Text(item.tone)
+        .fontSize(14)
+        .fontWeight(DesignSystem.FONT_WEIGHT_MEDIUM)
+        .fontFamily(DesignSystem.FONT_FAMILY_PRIMARY)
+        .fontColor(DesignSystem.COLOR_TEXT_PRIMARY)
+        .textAlign(TextAlign.Center)
+        .maxLines(1);
+
+      // 描述
+      Text(item.content)
+        .fontSize(12)
+        .fontWeight(DesignSystem.FONT_WEIGHT_REGULAR)
+        .fontFamily(DesignSystem.FONT_FAMILY_PRIMARY)
+        .fontColor(DesignSystem.COLOR_TEXT_SECONDARY)
+        .textAlign(TextAlign.Center)
+        .maxLines(2)
+        .textOverflow({ overflow: TextOverflow.Ellipsis });
+    }
+    .width(150)  // 固定宽度小卡片
+    .height(90)
+    .padding(DesignSystem.SPACING_M)
+    .backgroundColor(DesignSystem.COLOR_GLASS_BG)
+    .linearGradient(DesignSystem.GRADIENT_CARD_INTERNAL)  // 【关键】卡片内部渐变
+    .backdropBlur(DesignSystem.BLUR_RADIUS)
+    .borderRadius(DesignSystem.CORNER_RADIUS_M)
+    .border({ width: 1, color: DesignSystem.COLOR_GLASS_BORDER })
+    .shadow(DesignSystem.SHADOW_SOFT)
+    .justifyContent(FlexAlign.Center)
+    .alignItems(HorizontalAlign.Center)
   }
 }

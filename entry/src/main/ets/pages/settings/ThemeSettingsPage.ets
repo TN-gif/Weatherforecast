@@ -119,7 +119,10 @@ struct ThemeSettingsPage {
             
             Blank();
             
-            Text(this.isDarkMode ? '🌙' : '☀️')
+            Image(this.isDarkMode ? DesignSystem.IconResources.MOON : DesignSystem.IconResources.SUN)
+          .width(24)
+          .height(24)
+          .fillColor(Color.White)
               .fontSize(24);
           }
           .width('100%')
@@ -185,7 +188,7 @@ struct ThemeSettingsPage {
             ThemeMode.AUTO,
             '跟随系统',
             '根据时间自动切换浅色和深色主题',
-            '🔄'
+            DesignSystem.IconResources.REFRESH
           );
 
           ThemedDivider({ margin: { top: 12, bottom: 12 } });
@@ -195,7 +198,7 @@ struct ThemeSettingsPage {
             ThemeMode.LIGHT,
             '浅色模式',
             '适合白天使用，提供清晰的阅读体验',
-            '☀️'
+            DesignSystem.IconResources.SUN
           );
 
           ThemedDivider({ margin: { top: 12, bottom: 12 } });
@@ -205,7 +208,7 @@ struct ThemeSettingsPage {
             ThemeMode.DARK,
             '深色模式',
             '适合夜间使用，减少眼部疲劳',
-            '🌙'
+            DesignSystem.IconResources.MOON
           );
         }
       }
@@ -213,10 +216,12 @@ struct ThemeSettingsPage {
   }
 
   @Builder
-  private buildThemeOption(mode: ThemeMode, title: string, description: string, icon: string): void {
+  private buildThemeOption(mode: ThemeMode, title: string, description: string, icon: Resource): void {
     Row() {
-      Text(icon)
-        .fontSize(24)
+      Image(icon)
+        .width(24)
+        .height(24)
+        .fillColor(this.theme.textPrimaryColor)
         .margin({ right: 12 });
       
       Column() {
@@ -262,9 +267,7 @@ struct ThemeSettingsPage {
       children: () => {
         Column() {
           Row() {
-            Text('💡')
-              .fontSize(20)
-              .margin({ right: 8 });
+            // 移除装饰性emoji，保持简洁
             
             ThemedText({
               text: '主题建议',

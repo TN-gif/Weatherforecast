@@ -10,7 +10,11 @@
     },
     {
       "name": "EntryAbility_label",
-      "value": "label"
+      "value": "天气"
+    },
+    {
+      "name": "widget_desc_2x2",
+      "value": "2×2天气卡片，显示当前城市、温度和天气状况"
     },
     {
       "name": "permission_internet_reason",
@@ -39,6 +43,10 @@
     {
       "name": "permission_vibrate_reason",
       "value": "需要振动权限以支持触觉反馈功能"
+    },
+    {
+      "name": "permission_form_reason",
+      "value": "需要表单权限以更新桌面天气卡片"
     }
   ]
 }

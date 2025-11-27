@@ -19,7 +19,7 @@ export class NotificationManager {
     }
 
     const today = snapshot.daily[0];
-    const condition = today.condition.text;
+    const condition = today.description;
     
     // Simple logic: Alert if rain or snow
     if (condition.includes('雨') || condition.includes('雪') || condition.includes('Rain') || condition.includes('Snow')) {

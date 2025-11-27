@@ -47,17 +47,7 @@ export class ThemeConstants {
       lottieResource: 'rawfile/lottie/snow.json',
       isNightMode: false
     },
-    {
-      themeKey: 'night',
-      videoResource: 'rawfile/weather/night.mp4',
-      animatedImageResource: 'rawfile/weather/night.webp',
-      gradientColors: ['#1A1A2E', '#16213E'],
-      accentColor: 'rgba(100, 149, 237, 0.3)',
-      mode: BackgroundMode.VIDEO,
-      lottieResource: 'rawfile/lottie/moon.json',
-      isNightMode: true
-    },
-    // 夜间版本
+    // 夜间版本 - 已删除通用night主题（资源不存在）
     {
       themeKey: 'sunny_night',
       videoResource: 'rawfile/weather/sunny_night.mp4',
@@ -100,6 +90,7 @@ export class ThemeConstants {
 
   /**
    * 根据天气条件和时间自动选择主题
+   * 说明：背景会根据天气状况（sunny/rainy/snow）和时间段（白天/夜间）动态切换
    */
   static getThemeWithTimeAware(weatherKey: string, isNight: boolean = false): VideoThemeAsset {
     let targetKey = weatherKey;
@@ -111,8 +102,8 @@ export class ThemeConstants {
       if (nightTheme) {
         targetKey = nightKey;
       } else {
-        // 如果没有对应的夜间版本，使用通用夜间主题
-        targetKey = 'night';
+        // 如果没有对应的夜间版本，使用sunny_night作为默认夜间主题
+        targetKey = 'sunny_night';
       }
     }
     

@@ -7,6 +7,7 @@ import { AppConstants } from '../../common/constants/AppConstants';
 import { BusinessError } from '@ohos.base';
 import http from '@ohos.net.http';
 import { DevicePerformanceDetector } from '../../common/utils/DevicePerformanceDetector';
+import { GeoServiceRouter } from './GeoServiceRouter';
 
 interface IPLocationResponse {
   latitude: number;
@@ -15,23 +16,10 @@ interface IPLocationResponse {
   country?: string;
 }
 
-interface GeocodingApiResult {
-  id?: number;
-  name: string;
-  country: string;
-  admin1?: string;
-  latitude: number;
-  longitude: number;
-}
-
-interface GeocodingApiResponse {
-  results?: GeocodingApiResult[];
-}
-
-
 export class LocationService {
   private static instance: LocationService | null = null;
   private context: common.UIAbilityContext | null = null;
+  private readonly geoRouter: GeoServiceRouter = new GeoServiceRouter();
 
   private constructor() {}
 
@@ -102,21 +90,29 @@ export class LocationService {
   }
 
   private async getPreciseLocation(): Promise<Coordinates> {
+    console.info('[LocationService] 🎯 开始GPS精确定位流程');
+    
     if (!this.context) {
+      console.error('[LocationService] ❌ Context不可用');
       throw new LocationError(LocationErrorCode.CONTEXT_UNAVAILABLE, 'Context not available');
     }
+    console.debug('[LocationService] ✅ Context有效');
 
-    // ✅ Simulator Check: Skip GPS on simulator to avoid timeout
-    const performanceDetector = DevicePerformanceDetector.getInstance();
-    const capability = await performanceDetector.detect();
-    if (capability.isSimulator) {
-      console.warn('[LocationService] Simulator detected, skipping GPS to avoid timeout');
-      throw new LocationError(LocationErrorCode.LOCATION_TIMEOUT, 'Simulator: GPS skipped');
-    }
+    // 移除模拟器检查，允许在模拟器中使用GPS
+    console.debug('[LocationService] ✅ 继续GPS定位流程');
     
     try {
+      console.debug('[LocationService] 🔐 检查定位权限...');
       await this.ensureLocationPermission();
+      console.debug('[LocationService] ✅ 定位权限已授予');
+      
+      console.debug('[LocationService] 🔌 检查定位开关...');
       await this.ensureLocationEnabled();
+      console.debug('[LocationService] ✅ 定位开关已开启');
+      
+      console.info('[LocationService] 📡 开始调用系统GPS接口...');
+      console.debug('[LocationService] GPS配置: priority=FIRST_FIX, timeout=15000ms');
+      const gpsStartTime = Date.now();
       
       const position: geoLocationManager.Location = await geoLocationManager.getCurrentLocation({
         priority: geoLocationManager.LocationRequestPriority.FIRST_FIX,
@@ -124,15 +120,22 @@ export class LocationService {
         timeoutMs: 15000
       });
       
+      const gpsDuration = Date.now() - gpsStartTime;
+      console.info(`[LocationService] ✅ GPS定位成功，耗时: ${gpsDuration}ms`);
+      
       const coordinates: Coordinates = {
         latitude: position.latitude,
         longitude: position.longitude
       };
+      console.debug(`[LocationService] 📍 原始GPS坐标: lat=${coordinates.latitude}, lon=${coordinates.longitude}`);
+      console.debug(`[LocationService] GPS精度: ${position.accuracy || 'N/A'}米`);
+      
       return coordinates;
     } catch (error) {
       const businessError = error as BusinessError;
       const errorCode = this.mapBusinessErrorToLocationError(businessError.code);
       const errorMessage = businessError.message || 'Location service error';
+      console.error(`[LocationService] ❌ GPS定位失败: 错误码=${businessError.code}, 消息=${errorMessage}`);
       throw new LocationError(errorCode, errorMessage);
     }
   }
@@ -177,35 +180,57 @@ export class LocationService {
   }
 
   private async ensureLocationPermission(): Promise<void> {
+    console.debug('[LocationService] 🔐 开始权限验证流程');
+    
     if (!this.context) {
+      console.error('[LocationService] ❌ Context不可用，无法检查权限');
       throw new LocationError(LocationErrorCode.CONTEXT_UNAVAILABLE, 'Context not available');
     }
     
     const atManager = abilityAccessCtrl.createAtManager();
     const bundleInfo = await bundleManager.getBundleInfoForSelf(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION);
     const tokenId = bundleInfo.appInfo.accessTokenId;
+    console.debug(`[LocationService] 应用Token ID: ${tokenId}`);
     
     const permissions: Permissions[] = [
       AppConstants.LOCATION_PERMISSION as Permissions,
       AppConstants.APPROX_LOCATION_PERMISSION as Permissions
     ];
     
-    for (const permission of permissions) {
+    console.debug(`[LocationService] 需要检查 ${permissions.length} 个权限`);
+    
+    for (let i = 0; i < permissions.length; i++) {
+      const permission = permissions[i];
+      console.debug(`[LocationService] 检查权限 ${i + 1}/${permissions.length}: ${permission}`);
+      
       const grantStatus = await atManager.checkAccessToken(tokenId, permission);
-      if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
+      
+      if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_GRANTED) {
+        console.debug(`[LocationService] ✅ 权限已授予: ${permission}`);
+      } else if (grantStatus === abilityAccessCtrl.GrantStatus.PERMISSION_DENIED) {
+        console.warn(`[LocationService] ⚠️ 权限未授予: ${permission}，尝试请求...`);
         const hasPermission = await this.requestLocationPermission();
         if (!hasPermission) {
+          console.error(`[LocationService] ❌ 权限请求被拒绝: ${permission}`);
           throw new LocationError(LocationErrorCode.PERMISSION_DENIED, 'Location permission denied');
         }
+        console.info(`[LocationService] ✅ 权限请求成功: ${permission}`);
       }
     }
+    
+    console.debug('[LocationService] ✅ 所有定位权限验证通过');
   }
 
   private async ensureLocationEnabled(): Promise<void> {
+    console.debug('[LocationService] 🔌 检查系统定位开关状态...');
     const enabled: boolean = await geoLocationManager.isLocationEnabled();
+    
     if (!enabled) {
+      console.error('[LocationService] ❌ 系统定位开关未开启');
       throw new LocationError(LocationErrorCode.LOCATION_SWITCH_OFF, 'Location disabled');
     }
+    
+    console.debug('[LocationService] ✅ 系统定位开关已开启');
   }
 
   private async handleLocationError(error: BusinessError): Promise<Coordinates> {
@@ -224,97 +249,88 @@ export class LocationService {
   }
 
   private async fallbackToIPLocation(): Promise<Coordinates | null> {
+    console.info('[LocationService] 🌐 开始IP定位降级流程');
     const request: http.HttpRequest = http.createHttp();
+    
     try {
+      const ipApiUrl = 'https://ipapi.co/json/';
+      console.debug(`[LocationService] IP定位API: ${ipApiUrl}`);
+      console.debug('[LocationService] 请求超时配置: connect=5s, read=5s');
+      
+      const startTime = Date.now();
+      
       const ipRequestConfig: http.HttpRequestOptions = {
         method: http.RequestMethod.GET,
         expectDataType: http.HttpDataType.STRING,
         connectTimeout: 5000,
         readTimeout: 5000
       };
-      const response: http.HttpResponse = await request.request('https://ipapi.co/json/', ipRequestConfig);
+      
+      console.debug('[LocationService] 发送IP定位请求...');
+      const response: http.HttpResponse = await request.request(ipApiUrl, ipRequestConfig);
+      const duration = Date.now() - startTime;
+      
+      console.debug(`[LocationService] IP定位响应: status=${response.responseCode}, 耗时=${duration}ms`);
+      
+      if (response.responseCode !== 200) {
+        console.warn(`[LocationService] ❌ IP定位API返回错误状态码: ${response.responseCode}`);
+        return null;
+      }
+      
       const payload = JSON.parse(response.result as string) as IPLocationResponse;
+      console.debug(`[LocationService] IP定位响应数据: ${JSON.stringify(payload)}`);
+      
       if (payload.latitude && payload.longitude) {
         const ipCoordinates: Coordinates = {
           latitude: payload.latitude,
           longitude: payload.longitude
         };
+        console.info(`[LocationService] ✅ IP定位成功: lat=${ipCoordinates.latitude}, lon=${ipCoordinates.longitude}`);
+        if (payload.city) {
+          console.debug(`[LocationService] IP定位城市: ${payload.city}`);
+        }
         return ipCoordinates;
+      } else {
+        console.warn('[LocationService] ❌ IP定位响应缺少坐标数据');
+        return null;
       }
-      return null;
     } catch (err) {
-      console.warn('[LocationService] IP location failed');
+      console.error('[LocationService] ❌ IP定位异常:', err);
       return null;
     } finally {
       request.destroy();
+      console.debug('[LocationService] HTTP请求已清理');
     }
   }
 
   /**
-   * 反向地理编码：根据坐标获取城市名称
+   * 反向地理编码：根据坐标获取城市名称（使用智能路由）
    */
   async getCityNameFromCoordinates(coordinates: Coordinates): Promise<string> {
-    console.info('[LocationService] ========== 开始反向地理编码 ==========');
+    console.info('[LocationService] ========== 开始反向地理编码（智能路由） ==========');
     console.info(`[LocationService] 🗺️ 输入坐标: ${coordinates.latitude}, ${coordinates.longitude}`);
     
-    const request: http.HttpRequest = http.createHttp();
     const startTime = Date.now();
     
     try {
-      const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?latitude=${coordinates.latitude}&longitude=${coordinates.longitude}&count=1&language=zh&format=json`;
-      console.info(`[LocationService] 🌐 请求URL: ${geocodingUrl}`);
-      
-      const geocodingConfig: http.HttpRequestOptions = {
-        method: http.RequestMethod.GET,
-        expectDataType: http.HttpDataType.STRING,
-        connectTimeout: 8000,
-        readTimeout: 8000
-      };
-      
-      console.info('[LocationService] 📡 发送地理编码API请求...');
-      const response: http.HttpResponse = await request.request(geocodingUrl, geocodingConfig);
+      const cityName = await this.geoRouter.reverseGeocode(coordinates);
       const duration = Date.now() - startTime;
       
-      console.info(`[LocationService] 📡 API响应: 状态码=${response.responseCode}, 耗时=${duration}ms`);
-      
-      if (response.responseCode !== 200) {
-        console.warn(`[LocationService] ❌ 地理编码API失败: ${response.responseCode}`);
-        console.info('[LocationService] 🔄 切换到坐标推测模式');
-        return this.getFallbackCityName(coordinates);
-      }
-      
-      const responseText = response.result as string;
-      console.info(`[LocationService] 📄 API响应内容: ${responseText.substring(0, 200)}...`);
-      
-      const data = JSON.parse(responseText) as GeocodingApiResponse;
-      
-      if (data.results && data.results.length > 0) {
-        const result = data.results[0];
-        console.info(`[LocationService] 🏙️ 解析结果: name=${result.name}, admin1=${result.admin1}, country=${result.country}`);
-        
-        let cityName = result.name;
-        
-        // 如果有省份信息，组合显示
-        if (result.admin1 && result.admin1 !== result.name) {
-          cityName = `${result.name}, ${result.admin1}`;
-          console.info(`[LocationService] 🏷️ 组合城市名: ${cityName}`);
-        }
-        
-        console.info(`[LocationService] ✅ 地理编码成功: ${cityName}`);
+      if (cityName) {
+        console.info(`[LocationService] ✅ 智能路由成功，耗时: ${duration}ms`);
+        console.info(`[LocationService] 🏙️ 城市名称: ${cityName}`);
         return cityName;
       } else {
-        console.warn('[LocationService] ❌ API返回空结果');
+        console.warn(`[LocationService] ❌ 智能路由返回空，耗时: ${duration}ms`);
         console.info('[LocationService] 🔄 切换到坐标推测模式');
         return this.getFallbackCityName(coordinates);
       }
       
     } catch (error) {
       const duration = Date.now() - startTime;
-      console.error(`[LocationService] ❌ 地理编码异常，耗时=${duration}ms:`, error);
+      console.error(`[LocationService] ❌ 智能路由异常，耗时: ${duration}ms:`, error);
       console.info('[LocationService] 🔄 切换到坐标推测模式');
       return this.getFallbackCityName(coordinates);
-    } finally {
-      request.destroy();
     }
   }
 

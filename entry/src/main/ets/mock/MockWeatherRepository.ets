@@ -1,4 +1,5 @@
-import { WeatherSnapshot, WeatherCondition, CurrentWeather, HourlyForecast, DailyForecast, AdviceItem } from '../data/models/WeatherModels';
+import { WeatherSnapshot, WeatherCondition, CurrentWeather, HourlyForecast, DailyForecast, AdviceItem, WeatherAlert, RainForecast } from '../data/models/WeatherModels';
+import { DesignSystem } from '../common/theme/DesignSystem';
 
 export class MockWeatherRepository {
   private readonly snapshot: WeatherSnapshot;
@@ -42,10 +43,48 @@ export class MockWeatherRepository {
     ];
 
     const advice: AdviceItem[] = [
-      { id: 'ad1', icon: '🧴', tone: '提醒', content: '紫外线指数偏高，外出记得带伞或帽子。' },
-      { id: 'ad2', icon: '🥤', tone: '贴心', content: '湿度适中，随身小水杯可以保持元气。' },
-      { id: 'ad3', icon: '🎧', tone: '灵感', content: '把喜欢的歌单调出来，思绪随风摇曳。' }
+      { id: 'ad1', icon: 'sun', tone: '防晒提醒', content: '紫外线指数偏高，外出记得带伞或帽子', priority: 1 },
+      { id: 'ad2', icon: 'drop', tone: '补水建议', content: '湿度适中，随身小水杯可以保持元气', priority: 2 },
+      { id: 'ad3', icon: 'wind', tone: '出行提示', content: '今日风力适中，适合户外活动', priority: 3 }
     ];
+
+    // 生成天气预警数据（基于天气条件）
+    const alerts: WeatherAlert[] = [];
+    // 如果降雨概率高，添加预警
+    if (daily[2].precipitationProbability > 50) {
+      const rainAlert: WeatherAlert = {
+        id: 'alert_rain_001',
+        severity: 'warning',
+        title: '明日降雨提醒',
+        description: '预计明日有中到大雨，请提前准备雨具，注意出行安全',
+        startTime: daily[2].date + 'T06:00:00',
+        endTime: daily[2].date + 'T20:00:00',
+        iconResource: DesignSystem.IconResources.RAIN
+      };
+      alerts.push(rainAlert);
+    }
+
+    // 生成未来60分钟降雨预测
+    const rainForecast: RainForecast[] = [];
+    const now = new Date();
+    const baseProb = current.humidity > 60 ? 20 : 5; // 基础概率
+    
+    for (let i = 0; i < 12; i++) { // 每5分钟一个点，共60分钟
+      const minutes = i * 5;
+      const prob = baseProb + Math.sin(i * 0.5) * 15; // 模拟波动
+      const probability = Math.max(0, Math.min(100, prob));
+      
+      let intensity: 'light' | 'moderate' | 'heavy' = 'light';
+      if (probability > 70) intensity = 'heavy';
+      else if (probability > 40) intensity = 'moderate';
+      
+      const forecastItem: RainForecast = {
+        timeMinutes: minutes,
+        probability: Math.round(probability),
+        intensity: intensity
+      };
+      rainForecast.push(forecastItem);
+    }
 
     this.snapshot = {
       cityId: 'mock_city',
@@ -55,6 +94,8 @@ export class MockWeatherRepository {
       hourly: hourly,
       daily: daily,
       advice: advice,
+      alerts: alerts,
+      rainForecast: rainForecast,
       dataSource: 'mock'
     };
   }
@@ -69,6 +110,8 @@ export class MockWeatherRepository {
       hourly: base.hourly,
       daily: base.daily,
       advice: base.advice,
+      alerts: base.alerts,
+      rainForecast: base.rainForecast,
       dataSource: base.dataSource
     };
     return mockSnapshot;

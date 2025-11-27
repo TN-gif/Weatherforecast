@@ -14,7 +14,7 @@ export class AppConstants {
   static readonly METADATA_TABLE: string = 'metadata';
   static readonly MOCK_PAYLOAD_FILE: string = 'weather_mock_payload.json';
   static readonly MIN_REFRESH_INTERVAL_MINUTES: number = 15;
-  static readonly MAX_CITIES: number = 6;
+  static readonly MAX_CITIES: number = 100;
   static readonly BACKGROUND_MODE_KEY: string = 'background_mode';
   static readonly AUTO_LOCATION_KEY: string = 'auto_location';
   static readonly DEFAULT_BACKGROUND_MODE: string = 'gradient';

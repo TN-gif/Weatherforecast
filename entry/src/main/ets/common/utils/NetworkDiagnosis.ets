@@ -1,5 +1,6 @@
 import http from '@ohos.net.http';
 import connection from '@ohos.net.connection';
+import { WeatherApiConstants } from '../../common/constants/WeatherApiConstants';
 
 export interface DiagnosisResult {
   networkStatus: NetworkStatus;
@@ -146,7 +147,8 @@ export class NetworkDiagnosis {
   }
 
   async checkApiHealth(): Promise<ApiHealthCheck> {
-    const apiUrl = 'https://api.open-meteo.com/v1/forecast?latitude=31.2304&longitude=121.4737&current_weather=true';
+    // 使用 Open-Meteo API 进行健康检查（免费，无需API Key）
+    const apiUrl = 'https://api.open-meteo.com/v1/forecast?latitude=31.2304&longitude=121.4737&current=temperature_2m';
     
     console.info('[NetworkDiagnosis] Checking API health...');
     

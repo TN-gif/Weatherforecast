@@ -20,10 +20,11 @@ export class CityStorage {
 
   async init(context: common.UIAbilityContext): Promise<void> {
     if (this.rdbStore) {
+      console.debug('[CityStorage] ⚠️ 数据库已初始化，跳过');
       return;
     }
     
-    console.info('[CityStorage] Initializing database...');
+    console.info('[CityStorage] ⚙️ 开始初始化数据库...');
     const config: relationalStore.StoreConfig = {
       name: AppConstants.RDB_NAME,
       securityLevel: relationalStore.SecurityLevel.S1,
@@ -31,7 +32,9 @@ export class CityStorage {
     };
     
     try {
+      const startTime = Date.now();
       this.rdbStore = await relationalStore.getRdbStore(context, config);
+      console.info(`[CityStorage] 📂 RdbStore获取成功，耗时: ${Date.now() - startTime}ms`);
       
       // 检查数据库完整性
       await this.checkIntegrity();
@@ -42,9 +45,9 @@ export class CityStorage {
       // 确保表结构
       await this.ensureSchema();
       
-      console.info('[CityStorage] Database initialized successfully');
+      console.info('[CityStorage] ✅ 数据库初始化流程全部完成');
     } catch (error) {
-      console.error('[CityStorage] Database initialization failed, attempting recovery...');
+      console.error('[CityStorage] ❌ 数据库初始化失败，尝试执行修复流程...', error);
       await this.repairDatabase(context, config);
     }
   }
@@ -345,50 +348,79 @@ export class CityStorage {
 
   async loadCities(): Promise<City[]> {
     if (!this.rdbStore) {
+      console.warn('[CityStorage] ❌ 尝试加载城市但数据库未初始化');
       return [];
     }
     
+    console.info('[CityStorage] 📖 开始从数据库加载城市列表...');
+    const startTime = Date.now();
+    
     const predicates: relationalStore.RdbPredicates = new relationalStore.RdbPredicates(AppConstants.CITY_TABLE);
     predicates.orderByAsc('displayOrder');
-    const resultSet: relationalStore.ResultSet = await this.rdbStore.query(predicates);
-    const cities: City[] = [];
     
     try {
+      const resultSet: relationalStore.ResultSet = await this.rdbStore.query(predicates);
+      const cities: City[] = [];
+      
+      console.debug(`[CityStorage] 🔍 查询返回行数: ${resultSet.rowCount}`);
+      
       while (resultSet.goToNextRow()) {
         const city = this.mapResultSetToCity(resultSet);
         if (city) {
           cities.push(city);
         }
       }
-    } finally {
       resultSet.close();
+      
+      console.info(`[CityStorage] ✅ 城市列表加载完成，共 ${cities.length} 条，耗时: ${Date.now() - startTime}ms`);
+      return cities;
+    } catch (error) {
+      console.error('[CityStorage] ❌ 加载城市列表失败:', error);
+      return [];
     }
-    
-    return cities;
   }
 
   async saveCities(cities: City[]): Promise<void> {
     if (!this.rdbStore) {
+      console.warn('[CityStorage] ❌ 尝试保存城市但数据库未初始化');
       return;
     }
-    await this.rdbStore.executeSql(`DELETE FROM ${AppConstants.CITY_TABLE}`);
-    let displayOrder: number = 0;
-    for (const city of cities) {
-      const valueBucket: relationalStore.ValuesBucket = {
-        id: city.id,
-        name: city.name,
-        country: city.country,
-        latitude: city.coordinates.latitude,
-        longitude: city.coordinates.longitude,
-        source: city.source,
-        videoTheme: city.videoTheme,
-        timeZoneOffsetMinutes: city.timeZoneOffsetMinutes,
-        displayOrder: displayOrder,
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      };
-      await this.rdbStore.insert(AppConstants.CITY_TABLE, valueBucket);
-      displayOrder++;
+    
+    console.info(`[CityStorage] 💾 开始保存城市列表，共 ${cities.length} 条...`);
+    const startTime = Date.now();
+    
+    try {
+      // 使用事务确保原子性
+      this.rdbStore.beginTransaction();
+      
+      await this.rdbStore.executeSql(`DELETE FROM ${AppConstants.CITY_TABLE}`);
+      console.debug('[CityStorage] 🧹 旧数据已清除');
+      
+      let displayOrder: number = 0;
+      for (const city of cities) {
+        const valueBucket: relationalStore.ValuesBucket = {
+          id: city.id,
+          name: city.name,
+          country: city.country,
+          latitude: city.coordinates.latitude,
+          longitude: city.coordinates.longitude,
+          source: city.source,
+          videoTheme: city.videoTheme,
+          timeZoneOffsetMinutes: city.timeZoneOffsetMinutes,
+          displayOrder: displayOrder,
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        };
+        await this.rdbStore.insert(AppConstants.CITY_TABLE, valueBucket);
+        displayOrder++;
+      }
+      
+      this.rdbStore.commit();
+      console.info(`[CityStorage] ✅ 城市列表保存成功，耗时: ${Date.now() - startTime}ms`);
+    } catch (error) {
+      console.error('[CityStorage] ❌ 保存城市列表失败，回滚事务:', error);
+      this.rdbStore.rollBack();
+      throw error instanceof Error ? error : new Error(String(error));
     }
   }
 }

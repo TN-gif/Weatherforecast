@@ -28,8 +28,10 @@ export struct ErrorToast {
     if (this.errorMessage && this.isVisible) {
       Column() {
         Row() {
-          Text(this.getErrorIcon())
-            .fontSize(16)
+          Image(this.getErrorIcon())
+            .width(20)
+            .height(20)
+            .fillColor('#FFFFFF')
             .margin({ right: 8 });
           
           Text(this.errorMessage.message)
@@ -77,18 +79,18 @@ export struct ErrorToast {
     }
   }
 
-  private getErrorIcon(): string {
-    if (!this.errorMessage) return '';
+  private getErrorIcon(): Resource {
+    if (!this.errorMessage) return $r('app.media.close');
     
     switch (this.errorMessage.type) {
       case 'error':
-        return '❌';
+        return $r('app.media.close'); // 使用close图标代表错误
       case 'warning':
-        return '⚠️';
+        return $r('app.media.close'); // 复用close图标
       case 'info':
-        return 'ℹ️';
+        return $r('app.media.check'); // 使用check图标代表信息
       default:
-        return '❌';
+        return $r('app.media.close');
     }
   }
 
