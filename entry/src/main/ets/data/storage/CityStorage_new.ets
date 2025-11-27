@@ -1,4 +1,4 @@
-// This file is deprecated and should be removed
+// 此文件已弃用，应该删除
 
 export class CityStorage {
   private static instance: CityStorage | null = null;

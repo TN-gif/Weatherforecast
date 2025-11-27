@@ -1,5 +1,5 @@
 // ============================================================================
-// Imports
+// 导入模块
 // ============================================================================
 import { CityWeatherState } from '../../viewmodel/WeatherController';
 import { FormatHelper } from '../../common/utils/FormatHelper';
@@ -36,8 +36,11 @@ export struct CityWeatherCard {
   /** 是否为当前激活的卡片 */
   @Prop isActive: boolean = false;
   
-  /** 夜间模式标志（影响文本颜色） */
-  @StorageProp('isNightMode') isNightMode: boolean = true;
+  /** 
+   * 夜间模式标志（影响文本颜色）
+   * 默认值设为 false，由 WeatherHomePage.bootstrap() 根据系统时间设置正确值
+   */
+  @StorageProp('isNightMode') isNightMode: boolean = false;
 
   // ============================================================================
   // 生命周期方法

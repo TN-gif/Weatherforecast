@@ -1,7 +1,21 @@
 {
+  // ============================================================================
+  // ArkTS 代码质量检查配置
+  // ============================================================================
+  // 
+  // 本配置文件定义了 ArkTS 代码的静态分析规则，包括：
+  // - 安全性规则：防止使用不安全的加密算法
+  // - 性能规则：优化代码性能
+  // - 命名规范：确保代码命名一致性
+  // - 代码组织：保持代码结构清晰
+  //
+  // Requirements: 4.1, 4.5, 6.5
+  // ============================================================================
+
   "files": [
     "**/*.ets"
   ],
+  
   "ignore": [
     "**/src/ohosTest/**/*",
     "**/src/test/**/*",
@@ -9,13 +23,19 @@
     "**/node_modules/**/*",
     "**/oh_modules/**/*",
     "**/build/**/*",
-    "**/.preview/**/*"
+    "**/.preview/**/*",
+    "**/.hvigor/**/*"
   ],
+  
   "ruleSet": [
     "plugin:@performance/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
+  
   "rules": {
+    // ========================================================================
+    // 安全性规则 - 防止使用不安全的加密算法
+    // ========================================================================
     "@security/no-unsafe-aes": "error",
     "@security/no-unsafe-hash": "error",
     "@security/no-unsafe-mac": "warn",
@@ -27,6 +47,140 @@
     "@security/no-unsafe-rsa-key": "error",
     "@security/no-unsafe-dsa-key": "error",
     "@security/no-unsafe-dh-key": "error",
-    "@security/no-unsafe-3des": "error"
+    "@security/no-unsafe-3des": "error",
+    
+    // ========================================================================
+    // 命名规范规则 - Requirements: 6.5
+    // ========================================================================
+    // 组件名使用 PascalCase
+    // 方法名使用 camelCase
+    // 常量名使用 UPPER_SNAKE_CASE
+    "@typescript-eslint/naming-convention": ["warn", 
+      {
+        "selector": "class",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "typeAlias",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "enum",
+        "format": ["PascalCase"]
+      },
+      {
+        "selector": "enumMember",
+        "format": ["UPPER_CASE", "PascalCase"]
+      },
+      {
+        "selector": "variable",
+        "format": ["camelCase", "UPPER_CASE"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "function",
+        "format": ["camelCase", "PascalCase"]
+      },
+      {
+        "selector": "method",
+        "format": ["camelCase"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "parameter",
+        "format": ["camelCase"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": "property",
+        "format": ["camelCase", "UPPER_CASE"],
+        "leadingUnderscore": "allow"
+      }
+    ],
+    
+    // ========================================================================
+    // 代码质量规则 - Requirements: 6.1, 6.2
+    // ========================================================================
+    // 禁止未使用的变量
+    "@typescript-eslint/no-unused-vars": ["warn", {
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_"
+    }],
+    
+    // 要求使用 === 和 !==
+    "eqeqeq": ["warn", "always"],
+    
+    // 禁止使用 var
+    "no-var": "error",
+    
+    // 优先使用 const
+    "prefer-const": "warn",
+    
+    // 禁止重复的 case 标签
+    "no-duplicate-case": "error",
+    
+    // 禁止空块语句
+    "no-empty": ["warn", { "allowEmptyCatch": true }],
+    
+    // 禁止不必要的分号
+    "no-extra-semi": "warn",
+    
+    // 禁止对 function 声明重新赋值
+    "no-func-assign": "error",
+    
+    // 禁止在嵌套的块中出现变量声明或 function 声明
+    "no-inner-declarations": "error",
+    
+    // 禁止在 RegExp 构造函数中出现无效的正则表达式字符串
+    "no-invalid-regexp": "error",
+    
+    // 禁止不规则的空白
+    "no-irregular-whitespace": "error",
+    
+    // 禁止在字符串和注释之外不规则的空白
+    "no-trailing-spaces": "warn",
+    
+    // ========================================================================
+    // 代码组织规则 - Requirements: 6.1, 6.2, 6.3
+    // ========================================================================
+    // 限制函数最大行数（建议不超过 50 行）
+    "max-lines-per-function": ["warn", {
+      "max": 80,
+      "skipBlankLines": true,
+      "skipComments": true
+    }],
+    
+    // 限制文件最大行数（建议不超过 500 行）
+    "max-lines": ["warn", {
+      "max": 600,
+      "skipBlankLines": true,
+      "skipComments": true
+    }],
+    
+    // 限制嵌套深度（建议不超过 4 层）
+    "max-depth": ["warn", 4],
+    
+    // 限制回调函数嵌套深度
+    "max-nested-callbacks": ["warn", 3],
+    
+    // 限制函数参数数量
+    "max-params": ["warn", 5],
+    
+    // ========================================================================
+    // 性能优化规则 - Requirements: 7.1
+    // ========================================================================
+    // 禁止在循环中使用 await
+    "no-await-in-loop": "warn",
+    
+    // 禁止使用 console（生产环境）
+    // 注意：开发阶段可以设置为 "off"
+    "no-console": "off",
+    
+    // 禁止使用 debugger
+    "no-debugger": "warn"
   }
 }

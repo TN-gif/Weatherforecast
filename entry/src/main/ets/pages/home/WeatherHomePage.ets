@@ -42,6 +42,7 @@ import { ThemeManager } from '../../common/theme/ThemeManager';
 import router from '@ohos.router';
 import { DesignSystem } from '../../common/theme/DesignSystem';
 import { WeatherSkeleton } from '../../components/common/WeatherSkeleton';
+import { IconButton, SectionTitle } from '../../components/common/CommonBuilders';
 import vibrator from '@ohos.vibrator';
 import { BackgroundRefreshService } from '../../data/services/BackgroundRefreshService';
 import { WidgetDataStorage, WidgetWeatherData } from '../../data/storage/WidgetDataStorage';
@@ -155,6 +156,11 @@ export struct WeatherHomePage {
   
   // 主题和显示
   @StorageProp('themeKey') themeKey: string = 'sunny_day';
+  /** 
+   * 夜间模式标志
+   * 默认值设为 false，在 bootstrap() 中根据系统时间设置正确值
+   */
+  @StorageProp('isNightMode') isNightMode: boolean = false;
   
   // 功能开关
   @State private shakeEnabled: boolean = true;
@@ -398,6 +404,13 @@ export struct WeatherHomePage {
    * 4. 初始化摇一摇检测
    */
   aboutToAppear(): void {
+    // 🔧 关键修复：在组件出现时立即初始化 isNightMode
+    // 这确保了所有子组件（如 WeatherDetailGrid）在首次渲染时就有正确的主题值
+    const currentHour = new Date().getHours();
+    const isCurrentlyNight = currentHour >= 18 || currentHour < 7;
+    AppStorage.setOrCreate('isNightMode', isCurrentlyNight);
+    console.info(`[WeatherHomePage] 🌙 aboutToAppear: 初始化 isNightMode = ${isCurrentlyNight} (当前小时: ${currentHour})`);
+    
     const lifecycleData: LogData = {
       'cityStatesLength': this.cityStates.length,
       'isLoading': this.isLoading,
@@ -454,6 +467,13 @@ export struct WeatherHomePage {
       console.info('[WeatherHomePage] ========== 开始应用初始化流程 ==========');
       const startTime = Date.now();
       console.info(`[WeatherHomePage] 🏗️ 应用上下文状态: ${context ? '有效' : '无效'}`);
+      
+      // 🔧 关键修复：在初始化开始时就设置 isNightMode 的初始值
+      // 根据当前系统时间判断是否为夜间，避免首次加载时 WeatherDetailGrid 等组件使用错误的默认值
+      const currentHour = new Date().getHours();
+      const isCurrentlyNight = currentHour >= 18 || currentHour < 7;
+      AppStorage.setOrCreate('isNightMode', isCurrentlyNight);
+      console.info(`[WeatherHomePage] 🌙 初始化 isNightMode: ${isCurrentlyNight} (当前小时: ${currentHour})`);
       
       // 检查网络状态
       try {
@@ -728,7 +748,7 @@ export struct WeatherHomePage {
       console.info(`[WeatherHomePage] 📊 Snapshot data - humidity: ${gpsState.snapshot.current.humidity}, windSpeed: ${gpsState.snapshot.current.windSpeedKph}`);
       console.info(`[WeatherHomePage] 📊 Hourly forecast count: ${gpsState.snapshot.hourly?.length ?? 0}`);
       
-      // Convert WeatherSnapshot to WidgetWeatherData using WidgetHelper
+      // 使用 WidgetHelper 将 WeatherSnapshot 转换为 WidgetWeatherData
       const widgetData = WidgetHelper.convertToWidgetData(
         gpsState.snapshot,
         gpsState.city.name
@@ -736,14 +756,14 @@ export struct WeatherHomePage {
       
       console.info(`[WeatherHomePage] 📊 Widget data - humidity: ${widgetData.humidity}, windSpeed: ${widgetData.windSpeed}, hourly: ${widgetData.hourlyForecast.length}`);
       
-      // Get application context
+      // 获取应用上下文
       const context = AppContextHolder.getContext();
       if (!context) {
         console.error('[WeatherHomePage] ❌ No context available for widget data save');
         return;
       }
       
-      // Save to widget storage
+      // 保存到 Widget 存储
       await WidgetDataStorage.saveForWidget(context, widgetData);
       
       console.info(`[WeatherHomePage] ✅ Widget data saved successfully for GPS city: ${gpsState.city.name}`);
@@ -754,7 +774,7 @@ export struct WeatherHomePage {
       
     } catch (error) {
       console.error('[WeatherHomePage] ❌ Failed to save widget data:', error);
-      // Don't throw - widget data save failure shouldn't affect main app
+      // 不抛出异常 - Widget 数据保存失败不应影响主应用
     }
   }
 
@@ -1306,52 +1326,18 @@ export struct WeatherHomePage {
   private renderHeader(): void {
     Row() {
       // Left: Menu Button - 跳转到城市管理页面
-      this.IconButton(DesignSystem.IconResources.MENU, () => this.navigateToCityManagement());
+      IconButton(DesignSystem.IconResources.MENU, () => this.navigateToCityManagement())
 
-      Blank();
+      Blank()
 
       // Right: Add Button - 直接跳转到搜索模式（添加城市）
-      this.IconButton(DesignSystem.IconResources.ADD, () => this.navigateToAddCity());
+      IconButton(DesignSystem.IconResources.ADD, () => this.navigateToAddCity())
     }
     .width('100%')
     .padding({ 
       left: DesignSystem.Spacing.L, 
       right: DesignSystem.Spacing.L, 
       top: DesignSystem.Spacing.XL 
-    })
-  }
-
-  /**
-   * 渲染图标按钮
-   * 
-   * 特性：
-   * - 圆形触摸区域，提升用户体验
-   * - 白色图标带阴影，确保在各种背景下可见
-   * - 点击时触发震动反馈（如果设备支持）
-   * 
-   * @param iconRes 图标资源
-   * @param action 点击事件回调函数
-   */
-  @Builder
-  private IconButton(iconRes: Resource, action: () => void): void {
-    Button() {
-      Image(iconRes)
-        .width(24)
-        .height(24)
-        .fillColor(DesignSystem.Colors.WHITE)
-        .shadow({ radius: 4, color: 'rgba(0,0,0,0.2)', offsetY: 2 })
-    }
-    .width(44)
-    .height(44)
-    .backgroundColor(Color.Transparent) // No background
-    .type(ButtonType.Circle) // Ensure circle touch area
-    .onClick(() => {
-      try {
-        vibrator.startVibration({ type: 'time', duration: 50 }, { id: 0, usage: 'touch' });
-      } catch (e) {
-        // Ignore if vibration not supported
-      }
-      action();
     })
   }
 
@@ -1398,7 +1384,7 @@ export struct WeatherHomePage {
   private renderPriorityAdvice(adviceList: AdviceItem[]): void {
     if (adviceList && adviceList.length > 0) {
       Column({ space: DesignSystem.Spacing.M }) {
-        this.SectionTitle('重要提示');
+        SectionTitle('重要提示', '', this.isNightMode)
         ForEach(adviceList, (advice: AdviceItem) => {
           PriorityAdviceCard({ advice: advice });
         }, (advice: AdviceItem) => advice.id);
@@ -1532,29 +1518,29 @@ export struct WeatherHomePage {
 
           // Hourly Forecast Section
           if (state.snapshot && state.snapshot.hourly.length > 0) {
-            this.SectionTitle('24小时预报');
+            SectionTitle('24小时预报', '', this.isNightMode)
             HourlyTrendChart({ hourlyData: state.snapshot.hourly });
           }
 
           // Daily Forecast Section
           if (state.snapshot && state.snapshot.daily.length > 0) {
-            this.SectionTitle('7天预报');
+            SectionTitle('7天预报', '', this.isNightMode)
             DailyForecastCard({ dailyData: state.snapshot.daily });
           }
           
           // Details Grid Section
           if (state.snapshot) {
-            this.SectionTitle('当前天气详情');
+            SectionTitle('当前天气详情', '', this.isNightMode)
             WeatherDetailGrid({
               humidity: FormatHelper.formatHumidity(state.snapshot.current.humidity),
               aqi: FormatHelper.formatAqi(state.snapshot.current.aqi),
               wind: FormatHelper.formatWind(state.snapshot.current.windSpeedKph, state.snapshot.current.windDirection),
               feelsLike: FormatHelper.formatTemperature(state.snapshot.current.feelsLikeC),
-              pressure: `${state.snapshot.current.pressureHpa}hPa`,
-              visibilityInfo: `${state.snapshot.current.visibilityKm}`,
-              uvIndex: `${state.snapshot.current.uvIndex}`,
-              sunrise: state.snapshot.current.sunrise,
-              sunset: state.snapshot.current.sunset
+              pressure: FormatHelper.formatPressure(state.snapshot.current.pressureHpa),
+              visibilityInfo: FormatHelper.formatVisibility(state.snapshot.current.visibilityKm),
+              uvIndex: FormatHelper.formatUvIndex(state.snapshot.current.uvIndex),
+              sunrise: state.snapshot.current.sunrise || '--:--',
+              sunset: state.snapshot.current.sunset || '--:--'
             });
           }
 
@@ -1571,39 +1557,6 @@ export struct WeatherHomePage {
     .edgeEffect(EdgeEffect.Spring)
     .width('100%')
     .height('100%')
-  }
-
-  /**
-   * 渲染章节标题
-   * 
-   * 样式：
-   * - 主标题：18px，半粗体
-   * - 副标题：12px，细体（可选）
-   * 
-   * @param title 主标题文本
-   * @param subtitle 副标题文本（可选）
-   */
-  @Builder
-  private SectionTitle(title: string, subtitle: string = ''): void {
-    Column() {
-      Text(title)
-        .fontSize(18)
-        .fontWeight(DesignSystem.FONT_WEIGHT_SEMIBOLD)
-        .fontFamily(DesignSystem.FONT_FAMILY_PRIMARY)
-        .fontColor(DesignSystem.COLOR_TEXT_PRIMARY)
-        .margin({ bottom: subtitle ? 4 : 0 });
-      
-      if (subtitle) {
-        Text(subtitle)
-          .fontSize(12)
-          .fontWeight(DesignSystem.FONT_WEIGHT_LIGHT)
-          .fontFamily(DesignSystem.FONT_FAMILY_PRIMARY)
-          .fontColor(DesignSystem.COLOR_TEXT_SECONDARY);
-      }
-    }
-    .alignItems(HorizontalAlign.Start)
-    .width('100%')
-    .margin({ top: DesignSystem.SPACING_L, bottom: DesignSystem.SPACING_S, left: 4 })
   }
 
   /**

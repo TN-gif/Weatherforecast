@@ -21,7 +21,7 @@ export struct WeatherSkeleton {
   build() {
     Stack() {
       Column() {
-        // Header Placeholder
+        // 头部占位符
         Row() {
           this.SkeletonBlock(120, 32, this.emptyMargin)
           Blank()
@@ -30,7 +30,7 @@ export struct WeatherSkeleton {
         .width('100%')
         .padding({ left: DesignSystem.Spacing.L, right: DesignSystem.Spacing.L, top: DesignSystem.Spacing.L })
 
-        // Main Temperature Placeholder
+        // 主温度占位符
         Column() {
           this.SkeletonBlock(180, 80, this.topMargin)
           this.SkeletonBlock(100, 24, this.topMMargin)
@@ -38,7 +38,7 @@ export struct WeatherSkeleton {
         .width('100%')
         .alignItems(HorizontalAlign.Center)
 
-        // Hourly Forecast Placeholder
+        // 小时预报占位符
         Row() {
           ForEach([1, 2, 3, 4, 5], () => {
             Column() {
@@ -53,7 +53,7 @@ export struct WeatherSkeleton {
         .justifyContent(FlexAlign.Center)
         .margin({ top: 80 })
 
-        // Daily Forecast Placeholder
+        // 每日预报占位符
         Column() {
           ForEach([1, 2, 3], () => {
             Row() {
@@ -74,7 +74,7 @@ export struct WeatherSkeleton {
       .width('100%')
       .height('100%')
 
-      // Shimmer Overlay
+      // 闪烁动画覆盖层
       Row()
         .width('50%')
         .height('100%')

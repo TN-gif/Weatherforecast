@@ -60,15 +60,15 @@ struct CityManagementPage {
 
       // 内容层
       Column() {
-        // Header
+        // 头部导航栏
         this.buildHeader()
 
-        // Search Section（搜索模式下显示）
+        // 搜索区域（搜索模式下显示）
         if (this.isSearchMode) {
           this.buildSearchSection()
         }
 
-        // City List
+        // 城市列表
         if (this.isLoading) {
           this.buildLoading()
         } else {
@@ -78,7 +78,7 @@ struct CityManagementPage {
       .width('100%')
       .height('100%')
 
-      // Error Toast
+      // 错误提示
       ErrorToast({ errorMessage: $currentError })
     }
     .width('100%')

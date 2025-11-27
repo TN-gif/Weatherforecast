@@ -4,7 +4,8 @@ import { DesignSystem } from '../../common/theme/DesignSystem';
 @Component
 export struct RainForecastCard {
   @Prop rainData: RainForecast[];
-  @StorageProp('isNightMode') isNightMode: boolean = true;
+  /** 夜间模式标志，默认 false，由 WeatherHomePage.bootstrap() 设置 */
+  @StorageProp('isNightMode') isNightMode: boolean = false;
 
   build() {
     Column({ space: DesignSystem.Spacing.S }) {

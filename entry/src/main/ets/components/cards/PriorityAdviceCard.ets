@@ -4,7 +4,8 @@ import { DesignSystem } from '../../common/theme/DesignSystem';
 @Component
 export struct PriorityAdviceCard {
   @Prop advice: AdviceItem;
-  @StorageProp('isNightMode') isNightMode: boolean = true;
+  /** 夜间模式标志，默认 false，由 WeatherHomePage.bootstrap() 设置 */
+  @StorageProp('isNightMode') isNightMode: boolean = false;
 
   build() {
     Row() {

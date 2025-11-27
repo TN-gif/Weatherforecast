@@ -15,18 +15,18 @@ export default class EntryAbility extends UIAbility {
     AppContextHolder.setContext(this.context);
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
     
-    // Check if launched from widget
+    // 检查是否从 Widget 启动
     this.handleWidgetLaunch(want);
   }
   
   onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onNewWant');
-    // Handle widget launch when app is already running
+    // 处理应用已运行时从 Widget 启动的情况
     this.handleWidgetLaunch(want);
   }
   
   /**
-   * Handle launch from widget - set flag to navigate to GPS city
+   * 处理从 Widget 启动 - 设置标志以导航到 GPS 城市
    */
   private handleWidgetLaunch(want: Want): void {
     const params = want.parameters;
@@ -37,7 +37,7 @@ export default class EntryAbility extends UIAbility {
       hilog.info(DOMAIN, 'testTag', `[EntryAbility] 📱 Launch params - message: ${message}, forceGpsCity: ${forceGpsCity}`);
       
       if (message === 'OpenFromWidget' && forceGpsCity === 'true') {
-        // Set AppStorage flag to force navigation to GPS city (index 0)
+        // 设置 AppStorage 标志以强制导航到 GPS 城市（索引 0）
         AppStorage.setOrCreate('forceGpsCityNavigation', true);
         hilog.info(DOMAIN, 'testTag', '[EntryAbility] 🎯 Set forceGpsCityNavigation flag');
       }
@@ -49,7 +49,7 @@ export default class EntryAbility extends UIAbility {
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
-    // Main window is created, set main page for this ability
+    // 主窗口已创建，为此 Ability 设置主页面
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
 
     windowStage.loadContent('pages/Index', (err) => {
@@ -62,17 +62,17 @@ export default class EntryAbility extends UIAbility {
   }
 
   onWindowStageDestroy(): void {
-    // Main window is destroyed, release UI related resources
+    // 主窗口已销毁，释放 UI 相关资源
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onWindowStageDestroy');
   }
 
   onForeground(): void {
-    // Ability has brought to foreground
+    // Ability 已进入前台
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onForeground');
   }
 
   onBackground(): void {
-    // Ability has back to background
+    // Ability 已进入后台
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onBackground');
     // 注意：卡片更新由 EntryFormAbility 负责
     // 主应用和卡片进程使用独立的 Preferences 存储，无法跨进程共享 form IDs

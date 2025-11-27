@@ -1,13 +1,28 @@
 import { HourlyForecast } from '../../data/models/WeatherModels';
 import { DesignSystem } from '../../common/theme/DesignSystem';
 
+/**
+ * 小时趋势图表组件
+ * 
+ * 显示未来24小时的天气趋势，包括温度、天气图标和降水概率。
+ * 使用横向滚动列表展示每小时的天气数据。
+ * 
+ * @component
+ */
 @Component
 export struct HourlyTrendChart {
+  /** 小时预报数据数组 */
   @Prop hourlyData: HourlyForecast[] = [];
-  @StorageProp('isNightMode') isNightMode: boolean = true;
+  /** 
+   * 夜间模式标志，影响颜色主题
+   * 性能优化: 使用 @StorageProp 而非 @State，因为该值由全局状态管理，避免不必要的组件内部状态
+   * 默认值设为 false，由 WeatherHomePage.bootstrap() 根据系统时间设置正确值
+   */
+  @StorageProp('isNightMode') isNightMode: boolean = false;
 
   build() {
     Column() {
+      // 性能优化: 使用横向滚动列表，只渲染可见区域的项，避免一次性渲染所有24小时数据
       List({ space: DesignSystem.SPACING_M }) {
         ForEach(this.hourlyData, (item: HourlyForecast, index: number) => {
           ListItem() {
@@ -31,11 +46,19 @@ export struct HourlyTrendChart {
     .shadow(DesignSystem.SHADOW_SOFT)
   }
 
+  /**
+   * 渲染单个小时项
+   * 
+   * 性能优化: 使用 @Builder 函数而非独立组件，减少组件创建开销
+   * 
+   * @param item - 小时预报数据
+   * @param isNow - 是否为当前时间
+   */
   @Builder
   private renderHourlyItem(item: HourlyForecast, isNow: boolean): void {
     Column({ space: DesignSystem.SPACING_S }) {
       // 时间
-      Text(isNow ? '现在' : this.formatTime(item.time))
+      Text(this.getDisplayTime(item.time, isNow))
         .fontSize(12)
         .fontWeight(isNow ? DesignSystem.FONT_WEIGHT_MEDIUM : DesignSystem.FONT_WEIGHT_REGULAR)
         .fontFamily(DesignSystem.FONT_FAMILY_PRIMARY)
@@ -48,7 +71,7 @@ export struct HourlyTrendChart {
         .fillColor(this.getTextColor('primary'))
 
       // 温度
-      Text(`${Math.round(item.temperatureC)}°`)
+      Text(this.formatTemperature(item.temperatureC))
         .fontSize(17)
         .fontWeight(DesignSystem.FONT_WEIGHT_MEDIUM)
         .fontFamily(DesignSystem.FONT_FAMILY_PRIMARY)
@@ -59,7 +82,7 @@ export struct HourlyTrendChart {
         Column() {
           Rect()
             .width(6)
-            .height(Math.min(item.precipitationProbability / 2, 30))
+            .height(this.calculatePrecipitationBarHeight(item.precipitationProbability))
             .fill('#64B5F6')
             .borderRadius(3)
 
@@ -81,6 +104,62 @@ export struct HourlyTrendChart {
     .justifyContent(FlexAlign.Center)
   }
 
+  // ==================== 私有方法 ====================
+
+  /**
+   * 获取显示时间文本
+   * 
+   * @param timeStr - ISO 时间字符串
+   * @param isNow - 是否为当前时间
+   * @returns 格式化的时间文本（"现在" 或 "X时"）
+   */
+  private getDisplayTime(timeStr: string, isNow: boolean): string {
+    if (isNow) {
+      return '现在';
+    }
+    return this.formatTime(timeStr);
+  }
+
+  /**
+   * 格式化时间字符串为小时显示
+   * 
+   * @param timeStr - ISO 时间字符串
+   * @returns 格式化的小时文本（例如："14时"）
+   */
+  private formatTime(timeStr: string): string {
+    const date: Date = new Date(timeStr);
+    return `${date.getHours()}时`;
+  }
+
+  /**
+   * 格式化温度显示
+   * 
+   * @param temperatureC - 摄氏温度值
+   * @returns 格式化的温度文本（例如："25°"）
+   */
+  private formatTemperature(temperatureC: number): string {
+    return `${Math.round(temperatureC)}°`;
+  }
+
+  /**
+   * 计算降水概率柱状图高度
+   * 
+   * 将降水概率（0-100%）映射到柱状图高度（0-30px）
+   * 
+   * @param probability - 降水概率（0-100）
+   * @returns 柱状图高度（像素）
+   */
+  private calculatePrecipitationBarHeight(probability: number): number {
+    // 性能优化: 使用简单的线性映射，避免复杂计算
+    return Math.min(probability / 2, 30);
+  }
+
+  /**
+   * 根据文本级别和主题模式获取文本颜色
+   * 
+   * @param level - 文本级别（'primary', 'secondary', 'tertiary'）
+   * @returns 对应的颜色值
+   */
   private getTextColor(level: string): string {
     if (this.isNightMode) {
       if (level === 'primary') return DesignSystem.COLOR_TEXT_PRIMARY;
@@ -93,11 +172,12 @@ export struct HourlyTrendChart {
     }
   }
 
-  private formatTime(timeStr: string): string {
-    const date: Date = new Date(timeStr);
-    return `${date.getHours()}时`;
-  }
-
+  /**
+   * 根据天气代码获取对应的图标资源
+   * 
+   * @param code - 天气代码字符串
+   * @returns 天气图标资源
+   */
   private getWeatherIcon(code: string): Resource {
     if (code.includes('rain') || code.includes('Rain')) {
       return DesignSystem.ICON_RAIN;

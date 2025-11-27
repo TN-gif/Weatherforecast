@@ -2,7 +2,7 @@ import preferences from '@ohos.data.preferences';
 import type common from '@ohos.app.ability.common';
 
 /**
- * Widget weather data interface for cross-process sharing
+ * Widget 天气数据接口，用于跨进程共享
  */
 export interface WidgetWeatherData {
   cityName: string;
@@ -19,7 +19,7 @@ export interface WidgetWeatherData {
 }
 
 /**
- * Hourly forecast item for widget display
+ * 小时预报项，用于 Widget 显示
  */
 export interface WidgetHourlyItem {
   time: string;
@@ -28,17 +28,17 @@ export interface WidgetHourlyItem {
 }
 
 /**
- * Constants for widget data storage
+ * Widget 数据存储常量
  */
 const WIDGET_PREF_NAME: string = 'aurora_weather_widget';
 const WIDGET_DATA_KEY: string = 'widget_weather_data';
 const FORM_IDS_KEY: string = 'widget_form_ids';
 
 /**
- * WidgetDataStorage - Data storage for weather widget
+ * WidgetDataStorage - 天气 Widget 数据存储类
  *
- * This class provides persistent storage for weather data.
- * Note: 主应用和卡片进程使用独立的 Preferences 存储
+ * 本类提供天气数据的持久化存储功能。
+ * 注意：主应用和卡片进程使用独立的 Preferences 存储
  * - 主应用保存天气数据到 Preferences
  * - 卡片进程从 Preferences 读取天气数据
  * - form IDs 由卡片进程管理（主应用无法访问）
@@ -49,7 +49,7 @@ export class WidgetDataStorage {
   private static prefs: preferences.Preferences | null = null;
 
   /**
-   * Initialize preferences with application context
+   * 使用应用上下文初始化 Preferences
    */
   private static async ensurePreferences(context: common.Context): Promise<preferences.Preferences> {
     // 每次都重新获取 Preferences，确保数据最新
@@ -61,11 +61,11 @@ export class WidgetDataStorage {
 
 
   /**
-   * Save weather data to Preferences for widget access
-   * Persists data to both AppStorage and Preferences simultaneously
+   * 保存天气数据到 Preferences 供 Widget 访问
+   * 同时将数据持久化到 AppStorage 和 Preferences
    * 
-   * @param context Application context for Preferences access
-   * @param data Weather data to save
+   * @param context 用于访问 Preferences 的应用上下文
+   * @param data 要保存的天气数据
    * Requirements: 6.1, 6.2
    */
   static async saveForWidget(context: common.Context, data: WidgetWeatherData): Promise<void> {
@@ -85,11 +85,11 @@ export class WidgetDataStorage {
   }
 
   /**
-   * Load weather data from Preferences
-   * Returns null if no data exists or parsing fails
+   * 从 Preferences 加载天气数据
+   * 如果数据不存在或解析失败则返回 null
    * 
-   * @param context Application context for Preferences access
-   * @returns Weather data or null if unavailable
+   * @param context 用于访问 Preferences 的应用上下文
+   * @returns 天气数据，如果不可用则返回 null
    * Requirements: 6.2, 6.3, 6.4
    */
   static async loadForWidget(context: common.Context): Promise<WidgetWeatherData | null> {
@@ -116,11 +116,11 @@ export class WidgetDataStorage {
   }
 
   /**
-   * Parse JSON string to WidgetWeatherData with validation
-   * Returns null for invalid or malformed JSON without throwing
+   * 解析 JSON 字符串为 WidgetWeatherData 并进行验证
+   * 对于无效或格式错误的 JSON 返回 null，不抛出异常
    * 
-   * @param jsonData JSON string to parse
-   * @returns Parsed data or null if invalid
+   * @param jsonData 要解析的 JSON 字符串
+   * @returns 解析后的数据，如果无效则返回 null
    * Requirements: 6.3
    */
   static parseWeatherData(jsonData: string): WidgetWeatherData | null {
@@ -130,15 +130,15 @@ export class WidgetDataStorage {
         return null;
       }
       
-      // Parse JSON and directly cast to WidgetWeatherData
-      // ArkTS will validate the structure at runtime
+      // 解析 JSON 并直接转换为 WidgetWeatherData
+      // ArkTS 将在运行时验证结构
       const parsed: WidgetWeatherData = JSON.parse(jsonData) as WidgetWeatherData;
       
-      // Debug: Log parsed data
+      // 调试：记录解析后的数据
       console.info(`[WidgetDataStorage] 📊 Parsed data - city: ${parsed.cityName}, temp: ${parsed.temperature}, humidity: ${parsed.humidity}, windSpeed: ${parsed.windSpeed}`);
       console.info(`[WidgetDataStorage] 📊 Hourly forecast count: ${parsed.hourlyForecast?.length ?? 0}`);
       
-      // Validate required fields exist
+      // 验证必需字段是否存在
       if (!parsed.cityName || !parsed.condition || !parsed.iconCode || !parsed.themeKey) {
         console.warn('[WidgetDataStorage] ⚠️ Weather data validation failed - missing required fields');
         console.warn(`[WidgetDataStorage] cityName: ${parsed.cityName}, condition: ${parsed.condition}, iconCode: ${parsed.iconCode}, themeKey: ${parsed.themeKey}`);
@@ -151,13 +151,13 @@ export class WidgetDataStorage {
         return null;
       }
       
-      // Ensure hourlyForecast is an array
+      // 确保 hourlyForecast 是数组
       if (!parsed.hourlyForecast) {
         console.info('[WidgetDataStorage] ⚠️ No hourly forecast, initializing empty array');
         parsed.hourlyForecast = [];
       }
       
-      // Ensure humidity and windSpeed have default values if undefined
+      // 确保 humidity 和 windSpeed 有默认值（如果未定义）
       if (parsed.humidity === undefined || parsed.humidity === null) {
         console.info('[WidgetDataStorage] ⚠️ Humidity undefined, setting to 0');
         parsed.humidity = 0;
@@ -176,10 +176,10 @@ export class WidgetDataStorage {
   }
 
   /**
-   * Save form ID list to Preferences
+   * 保存表单 ID 列表到 Preferences
    * 
-   * @param context Application context
-   * @param formIds Array of form IDs to save
+   * @param context 应用上下文
+   * @param formIds 要保存的表单 ID 数组
    * Requirements: 7.3
    */
   static async saveFormIds(context: common.Context, formIds: string[]): Promise<void> {
@@ -199,10 +199,10 @@ export class WidgetDataStorage {
   }
 
   /**
-   * Load form ID list from Preferences
+   * 从 Preferences 加载表单 ID 列表
    * 
-   * @param context Application context
-   * @returns Array of form IDs or empty array if none exist
+   * @param context 应用上下文
+   * @returns 表单 ID 数组，如果不存在则返回空数组
    * Requirements: 7.3
    */
   static async loadFormIds(context: common.Context): Promise<string[]> {
@@ -223,11 +223,11 @@ export class WidgetDataStorage {
 
 
   /**
-   * Add a single form ID to storage
-   * Prevents duplicate IDs
+   * 添加单个表单 ID 到存储
+   * 防止重复 ID
    * 
-   * @param context Application context
-   * @param formId Form ID to add
+   * @param context 应用上下文
+   * @param formId 要添加的表单 ID
    * Requirements: 7.1
    */
   static async addFormId(context: common.Context, formId: string): Promise<void> {
@@ -235,7 +235,7 @@ export class WidgetDataStorage {
       console.info(`[WidgetDataStorage] ➕ Adding form ID: ${formId}`);
       const formIds = await WidgetDataStorage.loadFormIds(context);
       
-      // Prevent duplicates
+      // 防止重复
       if (!formIds.includes(formId)) {
         formIds.push(formId);
         await WidgetDataStorage.saveFormIds(context, formIds);
@@ -250,10 +250,10 @@ export class WidgetDataStorage {
   }
 
   /**
-   * Remove a single form ID from storage
+   * 从存储中移除单个表单 ID
    * 
-   * @param context Application context
-   * @param formId Form ID to remove
+   * @param context 应用上下文
+   * @param formId 要移除的表单 ID
    * Requirements: 7.2
    */
   static async removeFormId(context: common.Context, formId: string): Promise<void> {
@@ -276,9 +276,9 @@ export class WidgetDataStorage {
   }
 
   /**
-   * Clear all widget data (for testing/reset purposes)
+   * 清除所有 Widget 数据（用于测试/重置）
    * 
-   * @param context Application context
+   * @param context 应用上下文
    */
   static async clearAll(context: common.Context): Promise<void> {
     try {
@@ -297,10 +297,10 @@ export class WidgetDataStorage {
   }
 
   /**
-   * Check if weather data exists in storage
+   * 检查存储中是否存在天气数据
    * 
-   * @param context Application context
-   * @returns true if data exists
+   * @param context 应用上下文
+   * @returns 如果数据存在则返回 true
    */
   static async hasWeatherData(context: common.Context): Promise<boolean> {
     try {
