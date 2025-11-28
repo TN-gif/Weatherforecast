@@ -20,8 +20,8 @@ export class WeatherApiConstants {
 
   // 和风天气配置（中国区域）
   static readonly QWEATHER_CONFIG: WeatherApiConfig = {
-    baseUrl: 'https://mk4d93cexw.re.qweatherapi.com', // 用户自定义域名
-    apiKey: '23d5896540cf4048a5c7242694cf9886',
+    baseUrl: '', // 用户自定义域名
+    apiKey: '', // 相关API
     hourlyCount: 24,
     dailyCount: 7
   };
