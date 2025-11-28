@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <title>图3-8 系统部署图</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #ffffff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #000;
+      text-align: center;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background: #fff;
+      border: 1px solid #000;
+      color: #000;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #f0f0f0;
+    }
+
+    svg {
+      background: #ffffff;
+      border: 1px solid #eee;
+    }
+
+    /* Strict Academic Style */
+    .node rect {
+      fill: #ffffff;
+      stroke: #000000;
+      stroke-width: 1px;
+    }
+
+    .node text {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 12px;
+      fill: #000000;
+    }
+
+    .stereotype {
+      font-size: 11px;
+      font-style: italic;
+    }
+
+    .edge {
+      fill: none;
+      stroke: #000000;
+      stroke-width: 1px;
+    }
+
+    .edge-label {
+      font-size: 11px;
+      fill: #000;
+      background-color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>图 3-8 系统部署图</h1>
+  <div class="controls">
+    <button onclick="exportPng('deploymap', 'fig-3-8-deployment')">导出 PNG (x4)</button>
+  </div>
+
+  <svg id="deploymap" width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#000" />
+      </marker>
+    </defs>
+
+    <!-- Node 1: Client -->
+    <g class="node" transform="translate(50, 150)">
+      <!-- 3D Box Effect -->
+      <path d="M0,10 L10,0 L160,0 L150,10 L0,10" fill="#fff" stroke="#000" />
+      <path d="M160,0 L160,100 L150,110 L150,10 L160,0" fill="#fff" stroke="#000" />
+      <rect x="0" y="10" width="150" height="100"></rect>
+
+      <text x="75" y="35" text-anchor="middle" class="stereotype">&lt;&lt;Device&gt;&gt;</text>
+      <text x="75" y="55" text-anchor="middle" style="font-weight:bold">Client PC</text>
+      <text x="75" y="75" text-anchor="middle">OS: Windows/Linux</text>
+      <text x="75" y="90" text-anchor="middle">JRE 1.8+</text>
+    </g>
+
+    <!-- Connection -->
+    <line class="edge" x1="210" y1="200" x2="300" y2="200" />
+    <text x="255" y="190" text-anchor="middle" class="edge-label">CLI / I/O</text>
+
+    <!-- Node 2: Application Server (Local) -->
+    <g class="node" transform="translate(300, 150)">
+      <path d="M0,10 L10,0 L160,0 L150,10 L0,10" fill="#fff" stroke="#000" />
+      <path d="M160,0 L160,100 L150,110 L150,10 L160,0" fill="#fff" stroke="#000" />
+      <rect x="0" y="10" width="150" height="100"></rect>
+
+      <text x="75" y="35" text-anchor="middle" class="stereotype">&lt;&lt;Execution Environment&gt;&gt;</text>
+      <text x="75" y="55" text-anchor="middle" style="font-weight:bold">App Server</text>
+      <text x="75" y="75" text-anchor="middle">JVM</text>
+
+      <!-- Artifact inside -->
+      <rect x="20" y="80" width="110" height="20" rx="2"></rect>
+      <text x="75" y="94" text-anchor="middle" style="font-size:10px">rbac-system.jar</text>
+    </g>
+
+    <!-- Connection -->
+    <line class="edge" x1="460" y1="200" x2="550" y2="200" />
+    <text x="505" y="190" text-anchor="middle" class="edge-label">JDBC (TCP/IP)</text>
+
+    <!-- Node 3: Database Server -->
+    <g class="node" transform="translate(550, 150)">
+      <path d="M0,10 L10,0 L160,0 L150,10 L0,10" fill="#fff" stroke="#000" />
+      <path d="M160,0 L160,100 L150,110 L150,10 L160,0" fill="#fff" stroke="#000" />
+      <rect x="0" y="10" width="150" height="100"></rect>
+
+      <text x="75" y="35" text-anchor="middle" class="stereotype">&lt;&lt;Device&gt;&gt;</text>
+      <text x="75" y="55" text-anchor="middle" style="font-weight:bold">Database Server</text>
+      <text x="75" y="75" text-anchor="middle">MySQL 5.7/8.0</text>
+
+      <!-- Artifact inside -->
+      <path d="M30,85 C30,80 120,80 120,85 C120,90 30,90 30,85" fill="none" stroke="#000" />
+      <path d="M30,85 L30,100 C30,105 120,105 120,100 L120,85" fill="none" stroke="#000" />
+      <text x="75" y="98" text-anchor="middle" style="font-size:10px">rbac_db</text>
+    </g>
+
+  </svg>
+
+  <script>
+    function exportPng(svgId, name) {
+      const svg = document.getElementById(svgId);
+      if (!svg) {
+        alert('未找到SVG元素');
+        return;
+      }
+
+      try {
+        // Get SVG dimensions
+        const viewBox = svg.viewBox.baseVal;
+        const width = viewBox && viewBox.width ? viewBox.width : 800;
+        const height = viewBox && viewBox.height ? viewBox.height : 400;
+        const scale = 4; // x4 resolution
+
+        // Create canvas
+        const canvas = document.createElement("canvas");
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext("2d");
+
+        // White background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Get SVG data using XMLSerializer
+        const serializer = new XMLSerializer();
+        let svgString = serializer.serializeToString(svg);
+
+        // Add XML namespace if not present
+        if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
+          svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+
+        // Embed all styles inline to SVG string
+        const styles = document.styleSheets;
+        let styleText = '<style>';
+        for (let i = 0; i < styles.length; i++) {
+          try {
+            const rules = styles[i].cssRules || styles[i].rules;
+            for (let j = 0; j < rules.length; j++) {
+              styleText += rules[j].cssText + ' ';
+            }
+          } catch (e) {
+            // Skip external stylesheets due to CORS
+          }
+        }
+        styleText += '</style>';
+
+        // Insert style into SVG
+        svgString = svgString.replace('</defs>', styleText + '</defs>');
+        if (!svgString.includes('</defs>')) {
+          svgString = svgString.replace('<svg', '<svg><defs>' + styleText + '</defs>');
+        }
+
+        // Create blob and load image
+        const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+
+        img.onload = function () {
+          // Draw SVG image on canvas with scaling
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Convert canvas to blob and download
+          canvas.toBlob(function (pngBlob) {
+            const link = document.createElement('a');
+            link.download = (name || 'diagram') + '.png';
+            link.href = URL.createObjectURL(pngBlob);
+            link.click();
+
+            // Cleanup
+            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(link.href);
+          }, 'image/png');
+        };
+
+        img.onerror = function (e) {
+          console.error('Image load error:', e);
+          console.log('SVG String:', svgString);
+          alert('图像加载失败，请检查浏览器控制台');
+          URL.revokeObjectURL(url);
+        };
+
+        img.src = url;
+
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('导出过程出错: ' + error.message);
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -132,6 +132,7 @@ export class WeatherController {
     return cities.map(city => new CityWeatherState(city, null, false, ''));
   }
 
+  // 批量添加天气
   async loadAll(forceRefresh: boolean): Promise<CityWeatherState[]> {
     console.info(`[WeatherController] ========== 开始加载所有城市天气 ==========`);
     console.info(`[WeatherController] 🔄 强制刷新: ${forceRefresh}`);

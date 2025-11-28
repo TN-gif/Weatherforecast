@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <title>图3-12 核心类 UML 类图</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #ffffff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #000;
+      text-align: center;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background: #fff;
+      border: 1px solid #000;
+      color: #000;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #f0f0f0;
+    }
+
+    svg {
+      background: #ffffff;
+      border: 1px solid #eee;
+    }
+
+    /* Strict Academic Style */
+    .class-box rect {
+      fill: #ffffff;
+      stroke: #000000;
+      stroke-width: 1px;
+    }
+
+    .class-name {
+      font-weight: bold;
+      font-size: 13px;
+      text-anchor: middle;
+    }
+
+    .class-stereotype {
+      font-size: 11px;
+      font-style: italic;
+      text-anchor: middle;
+    }
+
+    .class-attr,
+    .class-method {
+      font-size: 11px;
+      text-anchor: start;
+    }
+
+    .edge {
+      fill: none;
+      stroke: #000000;
+      stroke-width: 1px;
+    }
+
+    .edge-dashed {
+      stroke-dasharray: 5, 5;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>图 3-12 核心类 UML 类图</h1>
+  <div class="controls">
+    <button onclick="exportPng('coreuml', 'fig-3-12-core-uml')">导出 PNG (x4)</button>
+  </div>
+
+  <svg id="coreuml" width="1100" height="700" viewBox="0 0 1100 700" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow-empty" markerWidth="12" markerHeight="12" refX="12" refY="6" orient="auto">
+        <path d="M0,0 L12,6 L0,12 L0,0" fill="#fff" stroke="#000" stroke-width="1" />
+      </marker>
+      <marker id="arrow-open" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3" fill="none" stroke="#000" />
+      </marker>
+      <marker id="diamond-filled" markerWidth="16" markerHeight="12" refX="16" refY="6" orient="auto">
+        <path d="M0,6 L8,0 L16,6 L8,12 L0,6" fill="#000" stroke="#000" stroke-width="1" />
+      </marker>
+    </defs>
+
+    <!-- Entities (Top Row) -->
+    <g class="class-box" transform="translate(100, 50)">
+      <rect x="0" y="0" width="160" height="100"></rect>
+      <line x1="0" y1="25" x2="160" y2="25" stroke="#000" />
+      <line x1="0" y1="65" x2="160" y2="65" stroke="#000" />
+      <text x="80" y="18" class="class-name">User</text>
+      <text x="5" y="40" class="class-attr">- id: int</text>
+      <text x="5" y="55" class="class-attr">- username: String</text>
+      <text x="5" y="80" class="class-method">+ getters/setters()</text>
+    </g>
+
+    <g class="class-box" transform="translate(450, 50)">
+      <rect x="0" y="0" width="160" height="100"></rect>
+      <line x1="0" y1="25" x2="160" y2="25" stroke="#000" />
+      <line x1="0" y1="65" x2="160" y2="65" stroke="#000" />
+      <text x="80" y="18" class="class-name">Role</text>
+      <text x="5" y="40" class="class-attr">- id: int</text>
+      <text x="5" y="55" class="class-attr">- name: String</text>
+      <text x="5" y="80" class="class-method">+ getters/setters()</text>
+    </g>
+
+    <g class="class-box" transform="translate(800, 50)">
+      <rect x="0" y="0" width="160" height="100"></rect>
+      <line x1="0" y1="25" x2="160" y2="25" stroke="#000" />
+      <line x1="0" y1="65" x2="160" y2="65" stroke="#000" />
+      <text x="80" y="18" class="class-name">Permission</text>
+      <text x="5" y="40" class="class-attr">- id: int</text>
+      <text x="5" y="55" class="class-attr">- code: String</text>
+      <text x="5" y="80" class="class-method">+ getters/setters()</text>
+    </g>
+
+    <!-- Entity Relationships -->
+    <!-- User * - * Role -->
+    <path class="edge" d="M 260 100 L 450 100" />
+    <text x="270" y="95" style="font-size:10px">*</text>
+    <text x="440" y="95" style="font-size:10px">*</text>
+
+    <!-- Role * - * Permission -->
+    <path class="edge" d="M 610 100 L 800 100" />
+    <text x="620" y="95" style="font-size:10px">*</text>
+    <text x="790" y="95" style="font-size:10px">*</text>
+
+
+    <!-- Services (Middle Row) -->
+    <g class="class-box" transform="translate(100, 250)">
+      <rect x="0" y="0" width="180" height="80"></rect>
+      <line x1="0" y1="25" x2="180" y2="25" stroke="#000" />
+      <line x1="0" y1="35" x2="180" y2="35" stroke="#000" />
+      <text x="90" y="18" class="class-name">UserServiceImpl</text>
+      <text x="5" y="55" class="class-method">+ createUser(...)</text>
+      <text x="5" y="70" class="class-method">+ findByUsername(...)</text>
+    </g>
+
+    <g class="class-box" transform="translate(450, 250)">
+      <rect x="0" y="0" width="180" height="80"></rect>
+      <line x1="0" y1="25" x2="180" y2="25" stroke="#000" />
+      <line x1="0" y1="35" x2="180" y2="35" stroke="#000" />
+      <text x="90" y="18" class="class-name">RoleServiceImpl</text>
+      <text x="5" y="55" class="class-method">+ createRole(...)</text>
+      <text x="5" y="70" class="class-method">+ assignRoleToUser(...)</text>
+    </g>
+
+    <g class="class-box" transform="translate(800, 250)">
+      <rect x="0" y="0" width="180" height="80"></rect>
+      <line x1="0" y1="25" x2="180" y2="25" stroke="#000" />
+      <line x1="0" y1="35" x2="180" y2="35" stroke="#000" />
+      <text x="90" y="18" class="class-name">PermissionServiceImpl</text>
+      <text x="5" y="55" class="class-method">+ createPermission(...)</text>
+      <text x="5" y="70" class="class-method">+ assignToRole(...)</text>
+    </g>
+
+    <!-- DAOs (Bottom Row) -->
+    <g class="class-box" transform="translate(100, 450)">
+      <rect x="0" y="0" width="180" height="80"></rect>
+      <line x1="0" y1="25" x2="180" y2="25" stroke="#000" />
+      <line x1="0" y1="35" x2="180" y2="35" stroke="#000" />
+      <text x="90" y="18" class="class-name">UserDao</text>
+      <text x="5" y="55" class="class-method">+ insert(User)</text>
+      <text x="5" y="70" class="class-method">+ findByName(String)</text>
+    </g>
+
+    <g class="class-box" transform="translate(450, 450)">
+      <rect x="0" y="0" width="180" height="80"></rect>
+      <line x1="0" y1="25" x2="180" y2="25" stroke="#000" />
+      <line x1="0" y1="35" x2="180" y2="35" stroke="#000" />
+      <text x="90" y="18" class="class-name">RoleDao</text>
+      <text x="5" y="55" class="class-method">+ insert(Role)</text>
+      <text x="5" y="70" class="class-method">+ findById(int)</text>
+    </g>
+
+    <g class="class-box" transform="translate(800, 450)">
+      <rect x="0" y="0" width="180" height="80"></rect>
+      <line x1="0" y1="25" x2="180" y2="25" stroke="#000" />
+      <line x1="0" y1="35" x2="180" y2="35" stroke="#000" />
+      <text x="90" y="18" class="class-name">PermissionDao</text>
+      <text x="5" y="55" class="class-method">+ insert(Permission)</text>
+      <text x="5" y="70" class="class-method">+ findByUserId(int)</text>
+    </g>
+
+    <!-- Service uses DAO -->
+    <path class="edge edge-dashed" d="M 190 330 L 190 450" marker-end="url(#arrow-open)" />
+    <text x="200" y="390" style="font-size:11px">&lt;&lt;use&gt;&gt;</text>
+
+    <path class="edge edge-dashed" d="M 540 330 L 540 450" marker-end="url(#arrow-open)" />
+    <text x="550" y="390" style="font-size:11px">&lt;&lt;use&gt;&gt;</text>
+
+    <path class="edge edge-dashed" d="M 890 330 L 890 450" marker-end="url(#arrow-open)" />
+    <text x="900" y="390" style="font-size:11px">&lt;&lt;use&gt;&gt;</text>
+
+    <!-- Service manages Entity (Dependency) -->
+    <path class="edge edge-dashed" d="M 190 250 L 190 150" marker-end="url(#arrow-open)" />
+    <path class="edge edge-dashed" d="M 540 250 L 540 150" marker-end="url(#arrow-open)" />
+    <path class="edge edge-dashed" d="M 890 250 L 890 150" marker-end="url(#arrow-open)" />
+
+  </svg>
+
+  <script>
+    function exportPng(svgId, name) {
+      const svg = document.getElementById(svgId);
+      if (!svg) {
+        alert('未找到SVG元素');
+        return;
+      }
+
+      try {
+        // Get SVG dimensions
+        const viewBox = svg.viewBox.baseVal;
+        const width = viewBox && viewBox.width ? viewBox.width : 1100;
+        const height = viewBox && viewBox.height ? viewBox.height : 700;
+        const scale = 4; // x4 resolution
+
+        // Create canvas
+        const canvas = document.createElement("canvas");
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext("2d");
+
+        // White background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Get SVG data using XMLSerializer
+        const serializer = new XMLSerializer();
+        let svgString = serializer.serializeToString(svg);
+
+        // Add XML namespace if not present
+        if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
+          svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+
+        // Embed all styles inline to SVG string
+        const styles = document.styleSheets;
+        let styleText = '<style>';
+        for (let i = 0; i < styles.length; i++) {
+          try {
+            const rules = styles[i].cssRules || styles[i].rules;
+            for (let j = 0; j < rules.length; j++) {
+              styleText += rules[j].cssText + ' ';
+            }
+          } catch (e) {
+            // Skip external stylesheets due to CORS
+          }
+        }
+        styleText += '</style>';
+
+        // Insert style into SVG
+        svgString = svgString.replace('</defs>', styleText + '</defs>');
+        if (!svgString.includes('</defs>')) {
+          svgString = svgString.replace('<svg', '<svg><defs>' + styleText + '</defs>');
+        }
+
+        // Create blob and load image
+        const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+
+        img.onload = function () {
+          // Draw SVG image on canvas with scaling
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Convert canvas to blob and download
+          canvas.toBlob(function (pngBlob) {
+            const link = document.createElement('a');
+            link.download = (name || 'diagram') + '.png';
+            link.href = URL.createObjectURL(pngBlob);
+            link.click();
+
+            // Cleanup
+            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(link.href);
+          }, 'image/png');
+        };
+
+        img.onerror = function (e) {
+          console.error('Image load error:', e);
+          console.log('SVG String:', svgString);
+          alert('图像加载失败，请检查浏览器控制台');
+          URL.revokeObjectURL(url);
+        };
+
+        img.src = url;
+
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('导出过程出错: ' + error.message);
+      }
+    }
+  </script>
+</body>
+
+</html>

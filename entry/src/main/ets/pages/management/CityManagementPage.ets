@@ -516,7 +516,8 @@ struct CityManagementPage {
         timezoneOffsetMinutes = Math.round(lon / 15) * 60;
       }
     }
-    
+
+    // 计算城市当地时间
     const now = new Date();
     const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
     const cityLocalTime = new Date(utcTime + (timezoneOffsetMinutes * 60000));

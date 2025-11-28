@@ -24,7 +24,7 @@ export class WeatherRepository {
     console.info(`[WeatherRepository] 🔄 强制刷新: ${forceRefresh}`);
     console.debug(`[WeatherRepository] 📍 坐标: ${JSON.stringify(city.coordinates)}`);
     
-    // 检查缓存
+    // 1.检查缓存
     console.debug(`[WeatherRepository] 💾 检查本地缓存...`);
     const cached: WeatherSnapshot | null = await this.cacheStorage.loadSnapshot(city.id);
     
@@ -48,6 +48,7 @@ export class WeatherRepository {
     }
     
     try {
+      // 2. 网络请求
       console.info('[WeatherRepository] 🌐 开始从网络获取新数据...');
       const fetchStartTime = Date.now();
       // 🔧 修复：传入城市的时区信息
@@ -66,7 +67,7 @@ export class WeatherRepository {
       const err = error as Error;
       console.error(`[WeatherRepository] ❌ 网络获取失败: ${err.name} - ${err.message}`);
       
-      // 尝试使用缓存（即使过期）
+      // 3. 降级方案
       if (cached) {
         console.warn('[WeatherRepository] ⚠️ 网络失败，降级使用过期缓存数据');
         console.info(`[WeatherRepository] ========== 加载完成 (降级缓存) ==========`);

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <title>图3-9 权限校验装饰器 UML 类图</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #ffffff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #000;
+      text-align: center;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background: #fff;
+      border: 1px solid #000;
+      color: #000;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #f0f0f0;
+    }
+
+    svg {
+      background: #ffffff;
+      border: 1px solid #eee;
+    }
+
+    /* Strict Academic Style */
+    .class-box rect {
+      fill: #ffffff;
+      stroke: #000000;
+      stroke-width: 1px;
+    }
+
+    .class-name {
+      font-weight: bold;
+      font-size: 13px;
+      text-anchor: middle;
+    }
+
+    .class-stereotype {
+      font-size: 11px;
+      font-style: italic;
+      text-anchor: middle;
+    }
+
+    .class-attr,
+    .class-method {
+      font-size: 12px;
+      text-anchor: start;
+    }
+
+    .edge {
+      fill: none;
+      stroke: #000000;
+      stroke-width: 1px;
+    }
+
+    .edge-dashed {
+      stroke-dasharray: 5, 5;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>图 3-9 权限校验装饰器 UML 类图</h1>
+  <div class="controls">
+    <button onclick="exportPng('decoratoruml', 'fig-3-9-decorator-uml')">导出 PNG (x4)</button>
+  </div>
+
+  <svg id="decoratoruml" width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Markers -->
+      <marker id="arrow-empty" markerWidth="12" markerHeight="12" refX="12" refY="6" orient="auto">
+        <path d="M0,0 L12,6 L0,12 L0,0" fill="#fff" stroke="#000" stroke-width="1" />
+      </marker>
+      <marker id="diamond-open" markerWidth="16" markerHeight="12" refX="16" refY="6" orient="auto">
+        <path d="M0,6 L8,0 L16,6 L8,12 L0,6" fill="#fff" stroke="#000" stroke-width="1" />
+      </marker>
+    </defs>
+
+    <!-- Interface: AuthService (Top Center) -->
+    <g class="class-box" transform="translate(300, 50)">
+      <rect x="0" y="0" width="200" height="80"></rect>
+      <line x1="0" y1="30" x2="200" y2="30" stroke="#000" />
+      <line x1="0" y1="40" x2="200" y2="40" stroke="#000" />
+
+      <text x="100" y="15" class="class-stereotype">&lt;&lt;interface&gt;&gt;</text>
+      <text x="100" y="28" class="class-name">AuthService</text>
+
+      <text x="5" y="55" class="class-method">+ login(username, password)</text>
+      <text x="5" y="70" class="class-method">+ checkPermission(code)</text>
+    </g>
+
+    <!-- Concrete Component: AuthServiceImpl (Bottom Left) -->
+    <g class="class-box" transform="translate(100, 250)">
+      <rect x="0" y="0" width="200" height="80"></rect>
+      <line x1="0" y1="30" x2="200" y2="30" stroke="#000" />
+      <line x1="0" y1="40" x2="200" y2="40" stroke="#000" />
+
+      <text x="100" y="20" class="class-name">AuthServiceImpl</text>
+
+      <text x="5" y="55" class="class-method">+ login(...)</text>
+      <text x="5" y="70" class="class-method">+ checkPermission(...)</text>
+    </g>
+
+    <!-- Decorator: AuthServiceDecorator (Bottom Right) -->
+    <g class="class-box" transform="translate(500, 250)">
+      <rect x="0" y="0" width="200" height="80"></rect>
+      <line x1="0" y1="30" x2="200" y2="30" stroke="#000" />
+      <line x1="0" y1="50" x2="200" y2="50" stroke="#000" />
+
+      <text x="100" y="15" class="class-stereotype">&lt;&lt;abstract&gt;&gt;</text>
+      <text x="100" y="28" class="class-name">AuthServiceDecorator</text>
+
+      <text x="5" y="45" class="class-attr"># target: AuthService</text>
+      <text x="5" y="65" class="class-method">+ login(...)</text>
+    </g>
+
+    <!-- Concrete Decorator: AuthUserServiceDecorator (Below Decorator) -->
+    <g class="class-box" transform="translate(500, 400)">
+      <rect x="0" y="0" width="200" height="80"></rect>
+      <line x1="0" y1="30" x2="200" y2="30" stroke="#000" />
+      <line x1="0" y1="40" x2="200" y2="40" stroke="#000" />
+
+      <text x="100" y="20" class="class-name">AuthUserServiceDecorator</text>
+
+      <text x="5" y="55" class="class-method">+ createUser(...)</text>
+      <text x="5" y="70" class="class-method">// Adds permission check</text>
+    </g>
+
+    <!-- Relationships -->
+
+    <!-- AuthServiceImpl implements AuthService -->
+    <path class="edge edge-dashed" d="M 200 250 L 200 180 L 350 180 L 350 130" marker-end="url(#arrow-empty)" />
+
+    <!-- AuthServiceDecorator implements AuthService -->
+    <path class="edge edge-dashed" d="M 600 250 L 600 180 L 450 180 L 450 130" marker-end="url(#arrow-empty)" />
+
+    <!-- AuthServiceDecorator aggregates AuthService -->
+    <!-- Fixed: Connect from Right side of Decorator to Right side of Interface with clean orthogonal lines -->
+    <!-- Start from Decorator Right (700, 290) -> Go Right to 740 -> Go Up to 90 -> Go Left to 500 (Interface Right) -->
+    <!-- Diamond at Decorator end -->
+    <path class="edge" d="M 700 290 L 740 290 L 740 90 L 500 90" marker-start="url(#diamond-open)" />
+
+    <!-- AuthUserServiceDecorator extends AuthServiceDecorator -->
+    <path class="edge" d="M 600 400 L 600 330" marker-end="url(#arrow-empty)" />
+
+  </svg>
+
+  <script>
+    function exportPng(svgId, name) {
+      const svg = document.getElementById(svgId);
+      if (!svg) {
+        alert('未找到SVG元素');
+        return;
+      }
+
+      try {
+        // Get SVG dimensions
+        const viewBox = svg.viewBox.baseVal;
+        const width = viewBox && viewBox.width ? viewBox.width : 800;
+        const height = viewBox && viewBox.height ? viewBox.height : 600;
+        const scale = 4; // x4 resolution
+
+        // Create canvas
+        const canvas = document.createElement("canvas");
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext("2d");
+
+        // White background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Get SVG data using XMLSerializer
+        const serializer = new XMLSerializer();
+        let svgString = serializer.serializeToString(svg);
+
+        // Add XML namespace if not present
+        if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
+          svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+
+        // Embed all styles inline to SVG string
+        const styles = document.styleSheets;
+        let styleText = '<style>';
+        for (let i = 0; i < styles.length; i++) {
+          try {
+            const rules = styles[i].cssRules || styles[i].rules;
+            for (let j = 0; j < rules.length; j++) {
+              styleText += rules[j].cssText + ' ';
+            }
+          } catch (e) {
+            // Skip external stylesheets due to CORS
+          }
+        }
+        styleText += '</style>';
+
+        // Insert style into SVG
+        svgString = svgString.replace('</defs>', styleText + '</defs>');
+        if (!svgString.includes('</defs>')) {
+          svgString = svgString.replace('<svg', '<svg><defs>' + styleText + '</defs>');
+        }
+
+        // Create blob and load image
+        const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+
+        img.onload = function () {
+          // Draw SVG image on canvas with scaling
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Convert canvas to blob and download
+          canvas.toBlob(function (pngBlob) {
+            const link = document.createElement('a');
+            link.download = (name || 'diagram') + '.png';
+            link.href = URL.createObjectURL(pngBlob);
+            link.click();
+
+            // Cleanup
+            URL.revokeObjectURL(url);
+            URL.revokeObjectURL(link.href);
+          }, 'image/png');
+        };
+
+        img.onerror = function (e) {
+          console.error('Image load error:', e);
+          console.log('SVG String:', svgString);
+          alert('图像加载失败，请检查浏览器控制台');
+          URL.revokeObjectURL(url);
+        };
+
+        img.src = url;
+
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('导出过程出错: ' + error.message);
+      }
+    }
+  </script>
+</body>
+
+</html>

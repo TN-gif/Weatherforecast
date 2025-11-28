@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>图3-2 系统功能结构图</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: #ffffff;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #000;
+            text-align: center;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: #fff;
+            border: 1px solid #000;
+            color: #000;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+        }
+
+        svg {
+            background: #ffffff;
+            border: 1px solid #eee;
+        }
+
+        /* Strict Academic Style */
+        .node rect {
+            fill: #ffffff;
+            stroke: #000000;
+            stroke-width: 1px;
+        }
+
+        .node text {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            fill: #000000;
+        }
+
+        .node.root rect {
+            stroke-width: 1.5px;
+        }
+
+        .node.root text {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .edge {
+            fill: none;
+            stroke: #000000;
+            stroke-width: 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>图 3-2 系统功能结构图</h1>
+    <div class="controls">
+        <button onclick="exportPng('funcmap', 'fig-3-2-function-structure')">导出 PNG (x4)</button>
+    </div>
+
+    <svg id="funcmap" width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <!-- No markers needed for standard hierarchy lines -->
+        </defs>
+
+        <!-- Root Node -->
+        <g class="node root" transform="translate(500, 40)">
+            <rect x="0" y="0" width="200" height="40"></rect>
+            <text x="100" y="25" text-anchor="middle">RBAC 访问控制系统</text>
+        </g>
+
+        <!-- Level 1 Nodes (Horizontal Layout) -->
+        <!-- 1. 用户管理 -->
+        <g class="node" transform="translate(50, 120)">
+            <rect x="0" y="0" width="140" height="35"></rect>
+            <text x="70" y="22" text-anchor="middle">用户管理</text>
+        </g>
+        <!-- 2. 角色管理 -->
+        <g class="node" transform="translate(230, 120)">
+            <rect x="0" y="0" width="140" height="35"></rect>
+            <text x="70" y="22" text-anchor="middle">角色管理</text>
+        </g>
+        <!-- 3. 权限管理 -->
+        <g class="node" transform="translate(410, 120)">
+            <rect x="0" y="0" width="140" height="35"></rect>
+            <text x="70" y="22" text-anchor="middle">权限管理</text>
+        </g>
+        <!-- 4. 认证/会话 -->
+        <g class="node" transform="translate(590, 120)">
+            <rect x="0" y="0" width="140" height="35"></rect>
+            <text x="70" y="22" text-anchor="middle">认证与会话</text>
+        </g>
+        <!-- 5. 审计/分析 -->
+        <g class="node" transform="translate(770, 120)">
+            <rect x="0" y="0" width="140" height="35"></rect>
+            <text x="70" y="22" text-anchor="middle">审计与分析</text>
+        </g>
+        <!-- 6. 系统工具 -->
+        <g class="node" transform="translate(950, 120)">
+            <rect x="0" y="0" width="140" height="35"></rect>
+            <text x="70" y="22" text-anchor="middle">系统工具</text>
+        </g>
+
+        <!-- Edges Root -> L1 -->
+        <!-- Vertical line from Root -->
+        <line class="edge" x1="600" y1="80" x2="600" y2="100" />
+        <!-- Horizontal line connecting all L1 -->
+        <line class="edge" x1="120" y1="100" x2="1020" y2="100" />
+        <!-- Vertical lines to each L1 -->
+        <line class="edge" x1="120" y1="100" x2="120" y2="120" />
+        <line class="edge" x1="300" y1="100" x2="300" y2="120" />
+        <line class="edge" x1="480" y1="100" x2="480" y2="120" />
+        <line class="edge" x1="660" y1="100" x2="660" y2="120" />
+        <line class="edge" x1="840" y1="100" x2="840" y2="120" />
+        <line class="edge" x1="1020" y1="100" x2="1020" y2="120" />
+
+
+        <!-- Level 2 Nodes (Vertical Lists under each L1) -->
+
+        <!-- Under User Mgmt -->
+        <g class="node" transform="translate(60, 180)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">创建/删除用户</text>
+        </g>
+        <line class="edge" x1="120" y1="155" x2="120" y2="180" />
+
+        <g class="node" transform="translate(60, 220)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">冻结/解冻用户</text>
+        </g>
+        <line class="edge" x1="120" y1="210" x2="120" y2="220" />
+
+        <g class="node" transform="translate(60, 260)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">查看用户列表</text>
+        </g>
+        <line class="edge" x1="120" y1="250" x2="120" y2="260" />
+
+
+        <!-- Under Role Mgmt -->
+        <g class="node" transform="translate(240, 180)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">创建/删除角色</text>
+        </g>
+        <line class="edge" x1="300" y1="155" x2="300" y2="180" />
+
+        <g class="node" transform="translate(240, 220)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">分配/移除角色</text>
+        </g>
+        <line class="edge" x1="300" y1="210" x2="300" y2="220" />
+
+        <g class="node" transform="translate(240, 260)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">查看用户角色</text>
+        </g>
+        <line class="edge" x1="300" y1="250" x2="300" y2="260" />
+
+
+        <!-- Under Permission Mgmt -->
+        <g class="node" transform="translate(420, 180)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">创建/删除权限</text>
+        </g>
+        <line class="edge" x1="480" y1="155" x2="480" y2="180" />
+
+        <g class="node" transform="translate(420, 220)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">分配/移除权限</text>
+        </g>
+        <line class="edge" x1="480" y1="210" x2="480" y2="220" />
+
+        <g class="node" transform="translate(420, 260)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">查看我的权限</text>
+        </g>
+        <line class="edge" x1="480" y1="250" x2="480" y2="260" />
+
+
+        <!-- Under Auth -->
+        <g class="node" transform="translate(600, 180)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">用户登录/登出</text>
+        </g>
+        <line class="edge" x1="660" y1="155" x2="660" y2="180" />
+
+        <g class="node" transform="translate(600, 220)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">权限校验</text>
+        </g>
+        <line class="edge" x1="660" y1="210" x2="660" y2="220" />
+
+
+        <!-- Under Audit -->
+        <g class="node" transform="translate(780, 180)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">敏感操作记录</text>
+        </g>
+        <line class="edge" x1="840" y1="155" x2="840" y2="180" />
+
+        <g class="node" transform="translate(780, 220)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">智能审计分析</text>
+        </g>
+        <line class="edge" x1="840" y1="210" x2="840" y2="220" />
+
+
+        <!-- Under Tools -->
+        <g class="node" transform="translate(960, 180)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">数据库连接测试</text>
+        </g>
+        <line class="edge" x1="1020" y1="155" x2="1020" y2="180" />
+
+        <g class="node" transform="translate(960, 220)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">管理员密码修复</text>
+        </g>
+        <line class="edge" x1="1020" y1="210" x2="1020" y2="220" />
+
+        <g class="node" transform="translate(960, 260)">
+            <rect x="0" y="0" width="120" height="30"></rect>
+            <text x="60" y="20" text-anchor="middle">自动化测试</text>
+        </g>
+        <line class="edge" x1="1020" y1="250" x2="1020" y2="260" />
+
+    </svg>
+
+    <script>
+        function exportPng(svgId, name) {
+            const svg = document.getElementById(svgId);
+            if (!svg) {
+                alert('未找到SVG元素');
+                return;
+            }
+
+            try {
+                // Get SVG dimensions
+                const viewBox = svg.viewBox.baseVal;
+                const width = viewBox && viewBox.width ? viewBox.width : 1200;
+                const height = viewBox && viewBox.height ? viewBox.height : 600;
+                const scale = 4; // x4 resolution
+
+                // Create canvas
+                const canvas = document.createElement("canvas");
+                canvas.width = width * scale;
+                canvas.height = height * scale;
+                const ctx = canvas.getContext("2d");
+
+                // White background
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Get SVG data using XMLSerializer
+                const serializer = new XMLSerializer();
+                let svgString = serializer.serializeToString(svg);
+
+                // Add XML namespace if not present
+                if (!svgString.includes('xmlns="http://www.w3.org/2000/svg"')) {
+                    svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+                }
+
+                // Embed all styles inline to SVG string
+                const styles = document.styleSheets;
+                let styleText = '<style>';
+                for (let i = 0; i < styles.length; i++) {
+                    try {
+                        const rules = styles[i].cssRules || styles[i].rules;
+                        for (let j = 0; j < rules.length; j++) {
+                            styleText += rules[j].cssText + ' ';
+                        }
+                    } catch (e) {
+                        // Skip external stylesheets due to CORS
+                    }
+                }
+                styleText += '</style>';
+
+                // Insert style into SVG
+                svgString = svgString.replace('</defs>', styleText + '</defs>');
+                if (!svgString.includes('</defs>')) {
+                    svgString = svgString.replace('<svg', '<svg><defs>' + styleText + '</defs>');
+                }
+
+                // Create blob and load image
+                const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const img = new Image();
+
+                img.onload = function () {
+                    // Draw SVG image on canvas with scaling
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // Convert canvas to blob and download
+                    canvas.toBlob(function (pngBlob) {
+                        const link = document.createElement('a');
+                        link.download = (name || 'diagram') + '.png';
+                        link.href = URL.createObjectURL(pngBlob);
+                        link.click();
+
+                        // Cleanup
+                        URL.revokeObjectURL(url);
+                        URL.revokeObjectURL(link.href);
+                    }, 'image/png');
+                };
+
+                img.onerror = function (e) {
+                    console.error('Image load error:', e);
+                    console.log('SVG String:', svgString);
+                    alert('图像加载失败，请检查浏览器控制台');
+                    URL.revokeObjectURL(url);
+                };
+
+                img.src = url;
+
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('导出过程出错: ' + error.message);
+            }
+        }
+    </script>
+</body>
+
+</html>
