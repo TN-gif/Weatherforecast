@@ -340,10 +340,12 @@ export struct WeatherHomePage {
   private async reloadCitiesFromStorage(): Promise<void> {
     console.info('[WeatherHomePage] 🔄 从存储重新加载城市列表...');
     try {
-      // 重新初始化控制器以加载最新的城市顺序
+      // 🔧 修复：使用forceReload强制从数据库重新加载城市列表
+      // 这确保了城市顺序变化后能正确反映最新的数据库状态
       const context = AppContextHolder.getContext();
       if (context) {
-        await this.controller.init(context);
+        // 使用forceReload而不是init，确保从数据库重新加载
+        await CityRepository.getInstance().forceReload(context);
       }
       
       // 获取新的城市状态
@@ -361,8 +363,8 @@ export struct WeatherHomePage {
         this.activeIndex = Math.max(0, this.cityStates.length - 1);
       }
       
-      // 刷新天气数据
-      await this.refresh(true);
+      // 刷新天气数据（不强制刷新，避免触发异步GPS更新导致数据覆盖）
+      await this.refresh(false);
       
       console.info('[WeatherHomePage] ✅ 城市列表重新加载完成');
     } catch (error) {

@@ -711,7 +711,12 @@ struct CityManagementPage {
 
       const context = AppContextHolder.getContext();
       if (context) {
-        await this.cityRepository.init(context);
+        // 🔧 修复：只初始化weatherCache，不重新初始化cityRepository
+        // CityRepository是单例，重复init会导致从数据库重新加载，可能覆盖内存中的最新数据
+        // 如果cityRepository还未初始化，才进行初始化
+        if (this.cityRepository.getCities().length === 0) {
+          await this.cityRepository.init(context);
+        }
         await this.weatherCache.init(context);
       }
 

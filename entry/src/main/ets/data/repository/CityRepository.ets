@@ -18,15 +18,38 @@ export class CityRepository {
     return CityRepository.instance;
   }
 
+  private initialized: boolean = false;
+
   async init(context: common.UIAbilityContext): Promise<void> {
     console.info('[CityRepository] ========== 初始化城市仓库 ==========');
+    
+    // 🔧 关键修复：如果已经初始化且内存中有城市数据，跳过重新加载
+    // 这避免了在添加城市后重新初始化时覆盖内存中的最新数据
+    if (this.initialized && this.cities.length > 0) {
+      console.info(`[CityRepository] ⚠️ 城市仓库已初始化，跳过重复加载。当前城市数量: ${this.cities.length}`);
+      return;
+    }
+    
     await this.storage.init(context);
     const storedCities: City[] = await this.storage.loadCities();
     this.cities = storedCities;
+    this.initialized = true;
     console.info(`[CityRepository] ✅ 城市仓库初始化完成，加载了 ${this.cities.length} 个城市`);
     this.cities.forEach((city, index) => {
       console.debug(`[CityRepository]   ${index + 1}. ${city.name} (${city.id})`);
     });
+  }
+
+  /**
+   * 强制重新从数据库加载城市列表
+   * 仅在确定需要同步数据库数据时使用
+   */
+  async forceReload(context: common.UIAbilityContext): Promise<void> {
+    console.info('[CityRepository] 🔄 强制重新加载城市列表...');
+    await this.storage.init(context);
+    const storedCities: City[] = await this.storage.loadCities();
+    this.cities = storedCities;
+    console.info(`[CityRepository] ✅ 强制重新加载完成，共 ${this.cities.length} 个城市`);
   }
 
   getCities(): City[] {

@@ -139,7 +139,13 @@ export class WeatherController {
     console.debug(`[WeatherController] ⚙️ 控制器状态: initialized=${this.initialized}`);
     const loadStartTime = Date.now();
     
+    // 🔧 关键修复：先获取当前城市列表的快照，避免异步GPS更新导致数据不一致
+    // 在天气加载过程中，城市列表应该保持稳定
+    const cities: City[] = this.cityRepository.getCities();
+    console.info(`[WeatherController] 📋 获取城市列表快照，共 ${cities.length} 个城市`);
+    
     // 如果是强制刷新，尝试更新GPS定位（但不阻塞天气加载）
+    // 🔧 修复：GPS更新现在只会更新AUTO类型的城市，不会影响其他城市
     if (forceRefresh) {
       console.info('[WeatherController] 🎯 强制刷新时尝试更新GPS定位（异步，不阻塞）...');
       // 使用异步方式更新定位，不等待结果
@@ -148,8 +154,8 @@ export class WeatherController {
       });
     }
     
-    // 重新获取城市列表（可能已被异步更新）
-    const cities: City[] = this.cityRepository.getCities();
+    // 🔧 修复：使用之前获取的城市列表快照，而不是重新获取
+    // 这避免了异步GPS更新可能导致的城市列表不一致问题
     console.info(`[WeatherController] 📋 待加载城市列表 (${cities.length}个):`);
     cities.forEach((city, index) => {
       console.info(`  ${index + 1}. ${city.name} [${city.id}] (${city.source})`);
@@ -236,12 +242,34 @@ export class WeatherController {
       console.info('[WeatherController] 🏗️ 创建/更新自动定位城市对象...');
       const autoCity: City = this.createAutoCity(coordinates, cityName);
       
-      // 获取现有城市列表
+      // 🔧 关键修复：获取现有城市列表时，检查是否有AUTO类型的城市
+      // 如果已有AUTO城市，只更新该城市，不影响其他城市
       const existingCities: City[] = this.cityRepository.getCities();
-      const nonAutoCities: City[] = existingCities.filter((city: City) => city.source !== CitySource.AUTO);
+      console.info(`[WeatherController] 📋 当前城市列表数量: ${existingCities.length}`);
+      existingCities.forEach((city, index) => {
+        console.info(`[WeatherController]   ${index + 1}. ${city.name} (${city.id}, source=${city.source})`);
+      });
       
-      // 将自动定位城市放在第一位
-      const updatedCities: City[] = [autoCity, ...nonAutoCities];
+      // 查找是否已存在AUTO类型的城市
+      const existingAutoIndex = existingCities.findIndex((city: City) => city.source === CitySource.AUTO);
+      
+      let updatedCities: City[];
+      if (existingAutoIndex >= 0) {
+        // 🔧 修复：如果已有AUTO城市，只替换该城市，保持其他城市不变
+        console.info(`[WeatherController] 🔄 发现已有AUTO城市在索引 ${existingAutoIndex}，仅更新该城市`);
+        updatedCities = [...existingCities];
+        updatedCities[existingAutoIndex] = autoCity;
+      } else {
+        // 没有AUTO城市，将新的AUTO城市添加到第一位
+        console.info('[WeatherController] ➕ 没有AUTO城市，添加到列表首位');
+        updatedCities = [autoCity, ...existingCities];
+      }
+      
+      console.info(`[WeatherController] 📋 更新后城市列表数量: ${updatedCities.length}`);
+      updatedCities.forEach((city, index) => {
+        console.info(`[WeatherController]   ${index + 1}. ${city.name} (${city.id}, source=${city.source})`);
+      });
+      
       await this.cityRepository.updateCities(updatedCities);
       
       console.info(`[WeatherController] ✅ 自动定位城市已更新: ${cityName}`);
